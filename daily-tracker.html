@@ -489,7 +489,7 @@ const RAKAAT_IDS=['duha','sunnah-dhuhr','qiyam'];
 
 // ═══ STATE ═══════════════════════════════════════════════════
 let currentDone={}, currentRakaat={};
-let customTasks=JSON.parse(localStorage.getItem('custom_tasks')||'[]');
+let customTasks=[];   // مهام اليوم الحالي فقط — تُحمَّل من بيانات اليوم
 let viewYear=new Date().getFullYear();
 
 // DAY NAVIGATION: offset from today (0=today, -1=yesterday, 1=tomorrow, etc.)
@@ -501,8 +501,9 @@ function allTasks(){ return [...FIXED_TASKS,...customTasks]; }
 // ═══ STORAGE ═════════════════════════════════════════════════
 function pad(n){return String(n).padStart(2,'0')}
 function dayKey(y,m,d){return `${y}-${pad(m)}-${pad(d)}`}
-function loadDay(key){return JSON.parse(localStorage.getItem('tracker_'+key)||'null')||{done:{},rakaat:{},journal:'',rating:0}}
-function saveCustom(){localStorage.setItem('custom_tasks',JSON.stringify(customTasks))}
+function loadDay(key){return JSON.parse(localStorage.getItem('tracker_'+key)||'null')||{done:{},rakaat:{},journal:'',rating:0,customTasks:[]}}
+
+
 
 function getViewDate(){
   const d=new Date();
@@ -527,7 +528,8 @@ function saveDay(){
   localStorage.setItem('tracker_'+viewDateKey(), JSON.stringify({
     done:currentDone, rakaat:currentRakaat,
     journal:document.getElementById('journalText').value,
-    rating:parseInt(document.getElementById('dayRating').value)
+    rating:parseInt(document.getElementById('dayRating').value),
+    customTasks:customTasks
   }));
   showToast(isToday()?'✅ تم حفظ اليوم!':(isPast()?'✅ تم حفظ اليوم الماضي!':'✅ تم حفظ اليوم القادم!'));
 }
@@ -561,12 +563,13 @@ function onRatingChange(v){
 }
 
 // ═══ PROGRESS ════════════════════════════════════════════════
-function calcScore(done){
-  const t=allTasks().length; if(!t)return 0;
+function calcScore(done, dayCustomTasks){
+  const tasks=[...FIXED_TASKS,...(dayCustomTasks||[])];
+  const t=tasks.length; if(!t)return 0;
   return Math.round(Object.values(done).filter(Boolean).length/t*100);
 }
 function updateProgress(){
-  const pct=calcScore(currentDone);
+  const pct=calcScore(currentDone, customTasks);
   document.getElementById('ringPct').textContent=pct+'%';
   document.getElementById('scoreDisplay').textContent=pct+'%';
   const circ=2*Math.PI*80;
@@ -648,6 +651,7 @@ function loadCurrentDay(){
   updateDayNavigatorUI();
   const data=loadDay(viewDateKey());
   currentDone=data.done||{}; currentRakaat=data.rakaat||{};
+  customTasks=data.customTasks||[];  // مهام خاصة لهذا اليوم فقط
 
   FIXED_TASKS.forEach(t=>{
     const c=document.getElementById('t-'+t.id);
@@ -691,13 +695,15 @@ function addCustomTask(){
   const name=inp.value.trim(); if(!name){inp.focus();return;}
   const cat=document.getElementById('newTaskCat').value;
   customTasks.push({id:'custom_'+Date.now(),name,section:cat});
-  saveCustom(); inp.value='';
+  inp.value='';
+  saveDay(); // يحفظ المهام الخاصة ضمن بيانات اليوم
   renderCustomCards(); renderCustomList(); updateProgress();
   showToast('✅ تمت الإضافة: '+name);
 }
 function deleteCustomTask(id){
   customTasks=customTasks.filter(t=>t.id!==id);
-  delete currentDone[id]; saveCustom();
+  delete currentDone[id];
+  saveDay();
   renderCustomCards(); renderCustomList(); updateProgress();
 }
 function openEditModal(id){
@@ -717,7 +723,7 @@ function saveEditTask(){
   const newName=document.getElementById('editTaskInput').value.trim();
   if(!newName)return;
   const t=customTasks.find(x=>x.id===editingTaskId);
-  if(t){t.name=newName; saveCustom(); renderCustomCards(); renderCustomList();}
+  if(t){t.name=newName; saveDay(); renderCustomCards(); renderCustomList();}
   closeEditModal();
   showToast('✅ تم تعديل المهمة');
 }
@@ -766,7 +772,7 @@ function updateWeekView(){
   for(let i=0;i<7;i++){
     const d=new Date(ws); d.setDate(ws.getDate()+i);
     const key=dayKey(d.getFullYear(),d.getMonth()+1,d.getDate());
-    const data=loadDay(key); const pct=calcScore(data.done||{});
+    const data=loadDay(key); const pct=calcScore(data.done||{}, data.customTasks||[]);
     const it=key===todayKey();
     const isSel=key===currentKey;
     if(Object.keys(data.done||{}).length>0){tp+=pct;dwd++;}
@@ -801,7 +807,7 @@ function updateMonthView(){
   const dim=new Date(y,m+1,0).getDate(), fd=new Date(y,m,1).getDay();
   let tp=0,act=0,best=0,streak=0,cur=0; const tc={};
   for(let d=1;d<=dim;d++){
-    const data=loadDay(dayKey(y,m+1,d)); const pct=calcScore(data.done||{});
+    const data=loadDay(dayKey(y,m+1,d)); const pct=calcScore(data.done||{}, data.customTasks||{});
     const has=Object.keys(data.done||{}).length>0;
     if(has){tp+=pct;act++;if(pct>best)best=pct;cur++;if(cur>streak)streak=cur;}else cur=0;
     Object.entries(data.done||{}).forEach(([k,v])=>{if(v)tc[k]=(tc[k]||0)+1;});
@@ -816,7 +822,7 @@ function updateMonthView(){
   let cal=dn.map(n=>`<div class="cal-header">${n}</div>`).join('');
   for(let i=0;i<fd;i++) cal+=`<div class="cal-day empty"></div>`;
   for(let d=1;d<=dim;d++){
-    const data=loadDay(dayKey(y,m+1,d)); const pct=calcScore(data.done||{});
+    const data=loadDay(dayKey(y,m+1,d)); const pct=calcScore(data.done||{}, data.customTasks||[]);
     const it=d===today.getDate(); const has=Object.keys(data.done||{}).length>0;
     const op=has?Math.max(.25,pct/100):.04;
     cal+=`<div class="cal-day${it?' today-cal':''}" style="${it?'':'background:rgba(46,160,85,'+op+')'}" title="${d}/${m+1} — ${pct}%" onclick="goToDay(${y},${m},${d})">${d}</div>`;
@@ -861,7 +867,7 @@ function updateYearView(){
     let mTotal=0,mAct=0,mBest=0;
     for(let d=1;d<=dim;d++){
       const data=loadDay(dayKey(y,m+1,d));
-      const pct=calcScore(data.done||{});
+      const pct=calcScore(data.done||{}, data.customTasks||[]);
       const has=Object.keys(data.done||{}).length>0;
       if(has){mTotal+=pct;mAct++;mBest=Math.max(mBest,pct);yearActive++;yearTotal+=pct;yearBest=Math.max(yearBest,pct);yearCur++;if(yearCur>yearStreak)yearStreak=yearCur;}else{yearCur=0;}
       Object.entries(data.done||{}).forEach(([k,v])=>{if(v)yearTaskCounts[k]=(yearTaskCounts[k]||0)+1;});
@@ -897,7 +903,7 @@ function updateYearView(){
     const dim=new Date(y,m+1,0).getDate();
     for(let d=1;d<=dim;d++){
       const data=loadDay(dayKey(y,m+1,d));
-      const pct=calcScore(data.done||{});
+      const pct=calcScore(data.done||{}, data.customTasks||[]);
       const has=Object.keys(data.done||{}).length>0;
       allDays.push({y,m,d,pct,has,date:new Date(y,m,d)});
     }
@@ -915,7 +921,7 @@ function updateYearView(){
     for(let i=0;i<fd;i++) html+=`<div></div>`;
     for(let d=1;d<=dim;d++){
       const data=loadDay(dayKey(y,m+1,d));
-      const pct=calcScore(data.done||{});
+      const pct=calcScore(data.done||{}, data.customTasks||[]);
       const has=Object.keys(data.done||{}).length>0;
       const isT=y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
       let bg;

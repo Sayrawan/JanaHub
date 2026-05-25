@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مواقعي</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1220;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #b8c3d9;
+      margin-bottom: 30px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 15px;
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      color: white;
+      background: #16213a;
+      padding: 25px;
+      border-radius: 16px;
+      transition: 0.2s;
+      border: 1px solid #263957;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      background: #1f2f52;
+    }
+
+    .icon {
+      font-size: 35px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .desc {
+      color: #b8c3d9;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>اختر الموقع</h1>
+    <p>اضغط على أي خيار للانتقال للموقع</p>
+
+    <div class="cards">
+
+      <a class="card" href="daily-tracker.html">
+        <div class="icon">📿</div>
+        <div class="title">متابعة أعمالي اليومية</div>
+        <div class="desc">متابعة المهام والإنجاز اليومي</div>
+      </a>
+
+      <a class="card" href="fitness-tracker.html">
+        <div class="icon">💪</div>
+        <div class="title">متتبع التمارين</div>
+        <div class="desc">تسجيل التمارين والتقدم</div>
+      </a>
+
+      <a class="card" href="quran-review.html">
+        <div class="icon">📖</div>
+        <div class="title">نظام مراجعة القرآن</div>
+        <div class="desc">متابعة الحفظ والمراجعة</div>
+      </a>
+
+    </div>
+  </div>
+</body>
+</html>

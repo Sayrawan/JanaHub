@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candy × Fahad's List — OBGYN</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f12;
+    --surface: #16161c;
+    --border: #2a2a35;
+    --accent-ob: #c8956a;
+    --accent-gyn: #7ea8c9;
+    --accent-gen: #9fc47a;
+    --text: #e8e4dc;
+    --muted: #7a7a88;
+    --highlight: #2a2518;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f0f12 0%, #1a1520 50%, #0f0f12 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 600px 200px at 50% 0%, rgba(200,149,106,0.08), transparent);
+    pointer-events: none;
+  }
+  .header h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-ob);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 300;
+  }
+  .header .tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+  }
+  .tag.gen { color: var(--accent-gen); border-color: var(--accent-gen); background: rgba(159,196,122,0.08); }
+  .tag.ob  { color: var(--accent-ob);  border-color: var(--accent-ob);  background: rgba(200,149,106,0.08); }
+  .tag.gyn { color: var(--accent-gyn); border-color: var(--accent-gyn); background: rgba(126,168,201,0.08); }
+
+  /* Legend */
+  .legend {
+    max-width: 860px;
+    margin: 24px auto 0;
+    padding: 0 20px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* Section blocks */
+  .container { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+
+  .section-group {
+    margin-top: 32px;
+  }
+  .section-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 4px 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .section-group-title.gen { color: var(--accent-gen); border-color: rgba(159,196,122,0.3); }
+  .section-group-title.ob  { color: var(--accent-ob);  border-color: rgba(200,149,106,0.3); }
+  .section-group-title.gyn { color: var(--accent-gyn); border-color: rgba(126,168,201,0.3); }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #3a3a4a; }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+
+  .candy-badge {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+  }
+  .candy-badge.gen { background: rgba(159,196,122,0.12); color: var(--accent-gen); border: 1px solid rgba(159,196,122,0.25); }
+  .candy-badge.ob  { background: rgba(200,149,106,0.12); color: var(--accent-ob);  border: 1px solid rgba(200,149,106,0.25); }
+  .candy-badge.gyn { background: rgba(126,168,201,0.12); color: var(--accent-gyn); border: 1px solid rgba(126,168,201,0.25); }
+  .badge-num { font-size: 16px; font-weight: 700; font-family: 'Libre Baskerville', serif; }
+
+  .card-info { flex: 1; min-width: 0; }
+  .candy-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .mcq-count {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .lectures-list {
+    padding: 0 16px 14px 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .lectures-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 0 8px;
+  }
+  .lecture-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: #ccc;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+  }
+  .lecture-item:last-child { border-bottom: none; }
+  .lec-num {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 1px;
+  }
+  .lec-num.ob  { background: rgba(200,149,106,0.15); color: var(--accent-ob); }
+  .lec-num.gyn { background: rgba(126,168,201,0.15); color: var(--accent-gyn); }
+
+  .note-box {
+    margin: 10px 0 2px;
+    padding: 8px 12px;
+    background: rgba(255,220,100,0.05);
+    border: 1px solid rgba(255,220,100,0.15);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #d4c070;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 16px 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍬 Candy × Fahad's List</h1>
+  <p>توزيع أسئلة الـ Candy على محاضرات OBGYN — Med22</p>
+  <div class="tags">
+    <span class="tag gen">General</span>
+    <span class="tag ob">Obstetrics</span>
+    <span class="tag gyn">Gynecology</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-gen)"></div> General (مشترك)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-ob)"></div> Obstetrics</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-gyn)"></div> Gynecology</div>
+  </div>
+
+  <!-- ========= GENERAL ========= -->
+  <div class="section-group">
+    <div class="section-group-title gen">⬡ General — مشترك</div>
+
+    <!-- G1 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gen"><span class="badge-num">1</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Ethics in Ob/Gyn</div>
+          <div class="mcq-count">16 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB3</div>Ethics and health rights in Obstetrics & Gynecology</div>
+        <div class="lecture-item"><div class="lec-num ob">OB35</div>Counselling & breaking bad news</div>
+      </div>
+    </div>
+
+    <!-- G2 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gen"><span class="badge-num">2</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Anatomy of Ob/Gyn</div>
+          <div class="mcq-count">53 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB6</div>Anatomy of female pelvis & fetal skull, Gyn Anatomy</div>
+      </div>
+    </div>
+
+    <!-- G3 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gen"><span class="badge-num">3</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Embryology & Teratogenicity</div>
+          <div class="mcq-count">41 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB23</div>Embryology & teratogenicity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= OBSTETRICS ========= -->
+  <div class="section-group">
+    <div class="section-group-title ob">◈ Obstetrics</div>
+
+    <!-- OB4 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">4</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Ob/Gyn History & Examination</div>
+          <div class="mcq-count">15 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB1</div>Obstetrics History & Examination</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN2</div>Gynecology History & Examination</div>
+      </div>
+    </div>
+
+    <!-- OB5 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">5</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Obstetrics Tools, Instruments, Procedures</div>
+          <div class="mcq-count">35 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB11</div>Obstetrics tools & instruments and procedures</div>
+      </div>
+    </div>
+
+    <!-- OB6 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">6</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Maternal Physiology in Pregnancy</div>
+          <div class="mcq-count">20 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB5</div>Maternal physiology in pregnancy</div>
+      </div>
+    </div>
+
+    <!-- OB7 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">7</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Medical Diseases in Pregnancy</div>
+          <div class="mcq-count">117 MCQs ⭐ أكبر قسم</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB15</div>HTN disorders in pregnancy (CBL) (SDL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB17</div>DM & GDM (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB22</div>Hematological diseases / Anemia in pregnancy</div>
+        <div class="lecture-item"><div class="lec-num ob">OB29</div>Medical diseases in pregnancy (Asthma, Epilepsy, Thyroid, CVS, Acute fatty liver) (SDL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB34</div>RH Isoimmunization</div>
+        <div class="lecture-item"><div class="lec-num ob">OB37</div>Infections in pregnancy</div>
+        <div class="note-box">⚠️ هذا القسم يجمع عدة محاضرات طبية — كل مرض يرجع لمحاضرته المخصصة</div>
+      </div>
+    </div>
+
+    <!-- OB8 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">8</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Disorders of Amniotic Fluid</div>
+          <div class="mcq-count">33 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB16</div>Disorders of Amniotic Fluids (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB9 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">9</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Early Pregnancy Bleeding</div>
+          <div class="mcq-count">50 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB31</div>Ectopic pregnancy (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB32</div>Abortion & recurrent pregnancy loss (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB33</div>Molar pregnancy (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB10 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">10</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Antepartum Hemorrhage</div>
+          <div class="mcq-count">36 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB20</div>Antepartum Hemorrhage (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB11 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">11</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Multiple Gestation</div>
+          <div class="mcq-count">25 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB27</div>Multiple gestation (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB12 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">12</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Operative Deliveries</div>
+          <div class="mcq-count">39 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB19</div>Operative deliveries</div>
+      </div>
+    </div>
+
+    <!-- OB13 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">13</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Physiology of Labor</div>
+          <div class="mcq-count">16 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB12</div>Physiology of labor</div>
+      </div>
+    </div>
+
+    <!-- OB14 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">14</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Abnormal Labor</div>
+          <div class="mcq-count">65 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB14</div>Abnormal labor & Fetal malpresentation & perineal trauma (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB26</div>Post-term & induction of labor (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB30</div>Preterm Labor / PPROM (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB15 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">15</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Fetal & Placental Physiology</div>
+          <div class="mcq-count">14 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB4</div>Fetal and placental physiology</div>
+      </div>
+    </div>
+
+    <!-- OB16 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">16</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Abnormal Fetus</div>
+          <div class="mcq-count">46 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB21</div>Fetal death, Fetal growth restriction (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB24</div>Fetal Hydrops (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB17 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">17</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Obstetrics Emergencies</div>
+          <div class="mcq-count">29 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB28</div>Obstetrics emergency (Malpresentation, AFE, Ruptured uterus, Uterine inversion, Retained placenta) (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB25</div>Postpartum Hemorrhage (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB18 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">18</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Postpartum Care</div>
+          <div class="mcq-count">21 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB8</div>Normal postpartum care (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB18</div>Postpartum psychiatric disorders (CBL)</div>
+        <div class="lecture-item"><div class="lec-num ob">OB36</div>Puerperal sepsis</div>
+      </div>
+    </div>
+
+    <!-- OB19 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">19</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Assessment of Fetal Wellbeing</div>
+          <div class="mcq-count">55 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB10</div>Assessment of fetal well-being (CBL)</div>
+      </div>
+    </div>
+
+    <!-- OB20 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge ob"><span class="badge-num">20</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Prenatal & Antenatal Care</div>
+          <div class="mcq-count">17 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB9</div>Prenatal & Antenatal care (CBL) (SDL)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= GYNECOLOGY ========= -->
+  <div class="section-group">
+    <div class="section-group-title gyn">◈ Gynecology</div>
+
+    <!-- GYN21 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">21</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Gynecology Tools, Instruments, & Procedures</div>
+          <div class="mcq-count">21 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN4</div>Gyn Instruments and Procedures</div>
+      </div>
+    </div>
+
+    <!-- GYN22 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">22</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Family Planning & Contraception</div>
+          <div class="mcq-count">32 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN18</div>Family Planning and contraception</div>
+      </div>
+    </div>
+
+    <!-- GYN23 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">23</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Physiology of Puberty & Menstrual Cycle</div>
+          <div class="mcq-count">28 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num ob">OB7</div>Physiology of menstrual cycle</div>
+        <div class="lecture-item"><div class="lec-num ob">OB13</div>Physiology of Puberty</div>
+      </div>
+    </div>
+
+    <!-- GYN24 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">24</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Puberty Disorders</div>
+          <div class="mcq-count">8 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN19</div>Disorders of puberty (CBL)</div>
+      </div>
+    </div>
+
+    <!-- GYN25 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">25</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Menstrual Cycle Disorders</div>
+          <div class="mcq-count">74 MCQs ⭐ أكبر قسم GYN</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN5</div>Amenorrhea (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN10</div>Menstrual disorders & PMS (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN15</div>Hirsutism & Virilization (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN20</div>PCOS (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN21</div>Menopause & HRT</div>
+      </div>
+    </div>
+
+    <!-- GYN26 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">26</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Infertility & ART</div>
+          <div class="mcq-count">31 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN17</div>Infertility & ART (CBL)</div>
+      </div>
+    </div>
+
+    <!-- GYN27 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">27</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Pelvic Floor Disorders</div>
+          <div class="mcq-count">31 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN6</div>Urinary incontinence (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN7</div>Anal Incontinence</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN8</div>Pelvic organ prolapse (CBL)</div>
+      </div>
+    </div>
+
+    <!-- GYN28 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">28</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Gynecology Infections</div>
+          <div class="mcq-count">32 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN11</div>Gynecology infections</div>
+      </div>
+    </div>
+
+    <!-- GYN29 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">29</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Benign Gynecological Lesions</div>
+          <div class="mcq-count">58 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN2</div>Benign gynecological conditions (Endometriosis & Adenomyosis)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN3</div>Benign gynecological conditions (Fibroid & Polyp)</div>
+      </div>
+    </div>
+
+    <!-- GYN30 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">30</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Malignant Gynecological Lesions</div>
+          <div class="mcq-count">54 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN12</div>Uterine Cancer (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN13</div>Vulvar Cancer (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN14</div>Cancer of Cervix (CBL)</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN22</div>Ovarian Neoplasm</div>
+      </div>
+    </div>
+
+    <!-- GYN31 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">31</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Approach to Pelvic Mass</div>
+          <div class="mcq-count">3 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN22</div>Ovarian Neoplasm — يشمل Pelvic Mass</div>
+        <div class="note-box">💡 لا يوجد محاضرة مخصصة، مدمج ضمن Ovarian Neoplasm & Benign Lesions</div>
+      </div>
+    </div>
+
+    <!-- GYN32 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">32</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Approach to Pelvic Pain</div>
+          <div class="mcq-count">4 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN1</div>Pelvic Pain</div>
+      </div>
+    </div>
+
+    <!-- GYN33 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">33</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Women Sexuality</div>
+          <div class="mcq-count">8 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN9</div>Women sexuality</div>
+      </div>
+    </div>
+
+    <!-- GYN34 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="candy-badge gyn"><span class="badge-num">34</span>Candy</div>
+        <div class="card-info">
+          <div class="candy-title">Violence & Assault Against Women</div>
+          <div class="mcq-count">5 MCQs</div>
+        </div>
+      </div>
+      <div class="lectures-list">
+        <div class="lectures-label">محاضرات Fahad</div>
+        <div class="lecture-item"><div class="lec-num gyn">GYN16</div>Violence and assault against women</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    بالتوفيق 🤍 — Candy × Fahad's List Mapping
+  </div>
+
+</div>
+</body>
+</html>

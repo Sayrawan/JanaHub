@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IronForge — متتبع التمارين</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050507;
+  --s1: #0c0c10;
+  --s2: #12121a;
+  --s3: #1a1a24;
+  --border: #1e1e2a;
+  --border2: #2a2a3a;
+  --text: #f0ede8;
+  --muted: #5a5a72;
+  --muted2: #8888a0;
+  --acc: #ff4500;
+  --acc2: #ff6b35;
+  --acc3: #ffaa00;
+  --green: #00d68f;
+  --blue: #00b4d8;
+  --purple: #9d4edd;
+  --red: #ff3860;
+  --mon: #ff4500;
+  --wed: #00b4d8;
+  --fri: #9d4edd;
+  --sat: #00d68f;
+  --r: 16px;
+  --r-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;min-height:100vh;overflow-x:hidden;}
+::selection{background:var(--acc);color:#000;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--s1);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── NOISE OVERLAY ─────────────────── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4;}
+
+/* ── SIDEBAR ───────────────────────── */
+#sidebar{position:fixed;top:0;right:0;height:100vh;width:72px;background:var(--s1);border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:20px 0;gap:4px;z-index:200;transition:width .3s cubic-bezier(.4,0,.2,1);}
+#sidebar.expanded{width:220px;}
+.nav-logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000;letter-spacing:1px;flex-shrink:0;box-shadow:0 0 20px rgba(255,69,0,.4);cursor:pointer;transition:transform .2s;}
+.nav-logo:hover{transform:scale(1.05);}
+.nav-divider{width:40px;height:1px;background:var(--border);margin:10px 0;}
+.nav-item{width:100%;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:0;cursor:pointer;transition:all .2s;position:relative;border-right:3px solid transparent;color:var(--muted2);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;}
+.nav-item:hover{color:var(--text);background:var(--s2);}
+.nav-item.active{color:var(--acc2);background:rgba(255,107,53,.08);border-right-color:var(--acc2);}
+.nav-item .nav-icon{font-size:20px;flex-shrink:0;width:24px;text-align:center;}
+.nav-label{opacity:0;transition:opacity .2s .1s;pointer-events:none;}
+#sidebar.expanded .nav-label{opacity:1;}
+.sidebar-toggle{margin-top:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--border2);background:var(--s2);color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;}
+.sidebar-toggle:hover{color:var(--text);border-color:var(--muted2);}
+
+/* ── MAIN ──────────────────────────── */
+#main{margin-right:72px;min-height:100vh;transition:margin-right .3s cubic-bezier(.4,0,.2,1);}
+#main.shifted{margin-right:220px;}
+
+/* ── TOPBAR ────────────────────────── */
+.topbar{padding:20px 28px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:0;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--text);line-height:1;}
+.page-subtitle{font-size:12px;color:var(--muted);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid;}
+
+/* ── PAGE SYSTEM ───────────────────── */
+.page{display:none;padding:20px 28px 40px;animation:fadeSlide .35s ease;}
+.page.active{display:block;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── CARDS ─────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card-glass{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:20px;backdrop-filter:blur(10px);}
+.card-glow{box-shadow:0 0 30px rgba(255,69,0,.1);}
+
+/* ── GRID LAYOUTS ──────────────────── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+/* ── STAT CARDS ────────────────────── */
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--border2);}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.stat-card.orange::after{background:linear-gradient(90deg,var(--acc),var(--acc2));}
+.stat-card.blue::after{background:linear-gradient(90deg,var(--blue),#0077b6);}
+.stat-card.green::after{background:linear-gradient(90deg,var(--green),#00a86b);}
+.stat-card.purple::after{background:linear-gradient(90deg,var(--purple),#7b2d8b);}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.stat-icon{position:absolute;top:16px;left:16px;font-size:28px;opacity:.15;}
+
+/* ── PROGRESS BAR ──────────────────── */
+.bar-bg{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.bar-thick{height:10px;}
+.bar-xl{height:14px;}
+
+/* ── BUTTONS ───────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;border:none;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;box-shadow:0 4px 15px rgba(255,69,0,.3);}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(255,69,0,.5);}
+.btn-green{background:linear-gradient(135deg,#00d68f,#00a86b);color:#000;}
+.btn-blue{background:linear-gradient(135deg,#00b4d8,#0077b6);color:#fff;}
+.btn-ghost{background:var(--s2);border:1px solid var(--border2);color:var(--muted2);}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted2);}
+.btn-danger{background:rgba(255,56,96,.15);border:1px solid rgba(255,56,96,.3);color:var(--red);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-xs{padding:4px 9px;font-size:11px;}
+.btn-icon{width:36px;height:36px;padding:0;justify-content:center;border-radius:9px;}
+
+/* ── INPUTS ────────────────────────── */
+.inp{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:9px;font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+.inp:focus{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(255,107,53,.15);}
+.inp::placeholder{color:var(--muted);}
+.inp-label{font-size:11px;color:var(--muted2);font-weight:700;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px;}
+.form-group{margin-bottom:14px;}
+select.inp option{background:var(--s2);}
+
+/* ── MODALS ────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);animation:modalIn .25s cubic-bezier(.34,1.56,.64,1);}
+@keyframes modalIn{from{transform:scale(.9) translateY(20px);}to{transform:scale(1) translateY(0);}}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+
+/* ── DAY SELECTOR ──────────────────── */
+.day-selector{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;}
+.day-pill{flex-shrink:0;padding:9px 20px;border-radius:30px;border:1.5px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;transition:all .25s;position:relative;}
+.day-pill:hover{border-color:var(--border2);color:var(--text);}
+.day-pill.active{color:#000;font-weight:900;}
+.day-pill .pct-badge{position:absolute;top:-6px;right:-6px;background:var(--green);color:#000;font-size:9px;font-weight:900;padding:2px 5px;border-radius:10px;min-width:20px;text-align:center;}
+
+/* ── EXERCISE CARDS ────────────────── */
+.ex-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:border-color .25s,transform .2s;}
+.ex-card:hover{border-color:var(--border2);}
+.ex-card.expanded{border-color:var(--border2);}
+.ex-head{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;user-select:none;}
+.ex-thumb{width:68px;height:56px;border-radius:10px;object-fit:cover;background:var(--s2);flex-shrink:0;}
+.ex-thumb-ph{width:68px;height:56px;border-radius:10px;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.ex-name{font-size:15px;font-weight:800;letter-spacing:-.2px;}
+.ex-name-ar{font-size:12px;color:var(--muted2);margin-top:1px;}
+.ex-chips{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+.ex-chip{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--s3);border:1px solid var(--border);color:var(--muted2);font-weight:700;}
+.ex-muscle-chip{background:rgba(0,214,143,.08);border-color:rgba(0,214,143,.2);color:#00d68f;}
+.ex-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
+.ex-body.open{display:block;animation:fadeSlide .2s ease;}
+
+/* ── SET BUTTONS ───────────────────── */
+.sets-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.set-btn{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--border);background:var(--s2);color:var(--muted2);font-size:13px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;position:relative;}
+.set-btn:hover:not(.done){border-color:var(--acc2);color:var(--acc2);}
+.set-btn.done{background:linear-gradient(135deg,var(--green),#00a86b);border-color:var(--green);color:#000;box-shadow:0 0 14px rgba(0,214,143,.35);transform:scale(1.08);}
+.set-btn.done::after{content:'✓';position:absolute;}
+
+/* ── VIDEO ─────────────────────────── */
+.video-wrap{position:relative;padding-bottom:56.25%;border-radius:12px;overflow:hidden;background:#000;margin:12px 0;}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.yt-link{display:flex;align-items:center;gap:8px;background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.15);color:#ff6b6b;padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;text-decoration:none;margin:10px 0;transition:background .2s;}
+.yt-link:hover{background:rgba(255,0,0,.14);}
+
+/* ── MUSCLE MAP ────────────────────── */
+.muscle-tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;}
+.muscle-tag{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;}
+.muscle-primary{background:rgba(255,69,0,.12);border-color:rgba(255,69,0,.3);color:var(--acc2);}
+.muscle-secondary{background:rgba(0,180,216,.1);border-color:rgba(0,180,216,.25);color:var(--blue);}
+
+/* ── WEEK RING ─────────────────────── */
+.ring-wrap{position:relative;width:120px;height:120px;flex-shrink:0;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-pct{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;}
+.ring-sub{font-size:10px;color:var(--muted);font-weight:700;}
+
+/* ── STREAK ────────────────────────── */
+.streak-flame{font-size:32px;animation:flame 1.5s ease-in-out infinite alternate;}
+@keyframes flame{from{transform:scale(1) rotate(-3deg);}to{transform:scale(1.1) rotate(3deg);}}
+.streak-days{display:flex;gap:5px;margin-top:10px;}
+.streak-dot{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);font-weight:700;transition:all .3s;}
+.streak-dot.hit{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:var(--acc);color:#000;}
+.streak-dot.today{border-color:var(--acc2);color:var(--acc2);box-shadow:0 0 8px rgba(255,107,53,.3);}
+
+/* ── PERSONAL RECORDS ──────────────── */
+.pr-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.pr-row:last-child{border-bottom:none;}
+.pr-badge{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;}
+
+/* ── LIBRARY ───────────────────────── */
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.lib-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;}
+.lib-card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.lib-card-img{height:120px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;}
+.lib-card-body{padding:12px;}
+.lib-card-name{font-size:14px;font-weight:800;margin-bottom:3px;}
+.lib-card-ar{font-size:11px;color:var(--muted2);margin-bottom:6px;}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted2);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.filter-btn.active{background:rgba(255,107,53,.12);border-color:var(--acc2);color:var(--acc2);}
+
+/* ── BODY WEIGHT CHART ─────────────── */
+.bw-chart{width:100%;height:160px;position:relative;margin:16px 0;}
+canvas{border-radius:8px;}
+
+/* ── TOAST ─────────────────────────── */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:11px 24px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;box-shadow:var(--shadow);}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── TIMER ─────────────────────────── */
+.timer-bar{position:fixed;bottom:0;left:0;right:72px;height:4px;background:var(--border);z-index:300;}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--acc));transition:width .1s linear;}
+#rest-timer{position:fixed;bottom:16px;right:90px;background:var(--s2);border:1px solid var(--border2);border-radius:16px;padding:10px 18px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:700;z-index:300;box-shadow:var(--shadow);display:none;}
+#rest-timer.visible{display:flex;}
+.timer-count{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);line-height:1;}
+
+/* ── SECTION TITLE ─────────────────── */
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+/* ── DIVIDER ───────────────────────── */
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+/* ── TABS ──────────────────────────── */
+.tab-bar{display:flex;gap:4px;background:var(--s2);border-radius:12px;padding:4px;margin-bottom:20px;}
+.tab-item{flex:1;padding:8px;border-radius:9px;border:none;background:transparent;color:var(--muted2);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;}
+.tab-item.active{background:var(--s3);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+/* ── TOOLTIP ───────────────────────── */
+[data-tip]{position:relative;}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:4px 10px;border-radius:8px;font-size:11px;white-space:nowrap;pointer-events:none;z-index:100;}
+
+/* ── RESPONSIVE ────────────────────── */
+@media(max-width:640px){
+  #sidebar{width:0;border:none;}#sidebar.expanded{width:220px;}
+  #main{margin-right:0;}#main.shifted{margin-right:220px;}
+  .page{padding:16px 14px 40px;}
+  .grid4{grid-template-columns:1fr 1fr;}
+  .grid3{grid-template-columns:1fr 1fr;}
+  .page-title{font-size:28px;}
+  .topbar{padding:14px 16px 0;}
+}
+/* ── MANAGE PAGE ──────────────────── */
+.manage-day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-left:6px;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state .e-icon{font-size:52px;margin-bottom:14px;}
+.empty-state .e-title{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--muted2);}
+.intro-hero{background:linear-gradient(135deg,rgba(255,69,0,.12),rgba(157,78,221,.08));border:1px solid rgba(255,69,0,.2);border-radius:20px;padding:28px;margin-bottom:24px;position:relative;overflow:hidden;}
+.intro-hero::before{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,69,0,.15),transparent 70%);pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- ── REST TIMER ───────────────────── -->
+<div id="rest-timer">
+  <div>⏱ استراحة</div>
+  <div class="timer-count" id="timer-count">0:00</div>
+  <button class="btn btn-xs btn-ghost" onclick="stopTimer()">إيقاف</button>
+</div>
+<div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:0%"></div></div>
+
+<!-- ── SIDEBAR ───────────────────────── -->
+<div id="sidebar">
+  <div class="nav-logo" onclick="toggleSidebar()" id="logo-btn">IF</div>
+  <div class="nav-divider"></div>
+  <div class="nav-item active" onclick="nav('dashboard',this)" data-tip="الرئيسية">
+    <span class="nav-icon">🏠</span><span class="nav-label">الرئيسية</span>
+  </div>
+  <div class="nav-item" onclick="nav('workout',this)" data-tip="التمرين">
+    <span class="nav-icon">🏋️</span><span class="nav-label">التمرين</span>
+  </div>
+  <div class="nav-item" onclick="nav('library',this)" data-tip="مكتبة التمارين">
+    <span class="nav-icon">📚</span><span class="nav-label">المكتبة</span>
+  </div>
+  <div class="nav-item" onclick="nav('progress',this)" data-tip="التقدم">
+    <span class="nav-icon">📊</span><span class="nav-label">التقدم</span>
+  </div>
+  <div class="nav-item" onclick="nav('history',this)" data-tip="السجل">
+    <span class="nav-icon">📅</span><span class="nav-label">السجل</span>
+  </div>
+  <div class="nav-item" onclick="nav('body',this)" data-tip="الجسم والوزن">
+    <span class="nav-icon">⚖️</span><span class="nav-label">الجسم</span>
+  </div>
+  <div class="nav-item" onclick="nav('records',this)" data-tip="الأرقام القياسية">
+    <span class="nav-icon">🏆</span><span class="nav-label">الأرقام القياسية</span>
+  </div>
+  <div class="nav-item" onclick="nav('manage',this)" data-tip="إدارة الجدول">
+    <span class="nav-icon">⚙️</span><span class="nav-label">إدارة الجدول</span>
+  </div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()" id="sidebar-toggle-btn">◀</button>
+</div>
+
+<!-- ── MAIN ───────────────────────────── -->
+<div id="main">
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: DASHBOARD                    -->
+<!-- ══════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="dash-greeting">مرحباً 💪</div>
+      <div class="page-subtitle" id="dash-date"></div>
+    </div>
+    <div class="topbar-right">
+      <div id="dash-streak-badge" class="badge" style="border-color:var(--acc2);color:var(--acc2)"></div>
+    </div>
+  </div>
+  <div style="padding:20px 28px 0">
+    <!-- HERO -->
+    <div class="intro-hero">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div class="ring-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="8"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="url(#ringGrad)" stroke-width="8" stroke-linecap="round" id="week-ring" stroke-dasharray="314" stroke-dashoffset="314"/>
+            <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff4500"/><stop offset="100%" stop-color="#ffaa00"/></linearGradient></defs>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-pct" id="ring-pct">0%</div>
+            <div class="ring-sub">الأسبوع</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--muted2);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">أسبوعك الحالي</div>
+          <div id="dash-next-day" style="font-size:22px;font-weight:900;margin-bottom:8px"></div>
+          <div id="dash-week-sessions" style="display:flex;gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="grid4" style="margin-bottom:18px">
+      <div class="stat-card orange">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-val" id="stat-streak" style="color:var(--acc2)">0</div>
+        <div class="stat-lbl">سلسلة أسابيع</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">📆</div>
+        <div class="stat-val" id="stat-total-sessions" style="color:var(--blue)">0</div>
+        <div class="stat-lbl">إجمالي الجلسات</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🏋️</div>
+        <div class="stat-val" id="stat-total-sets" style="color:var(--green)">0</div>
+        <div class="stat-lbl">إجمالي السيتات</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-val" id="stat-total-weight" style="color:var(--purple)">0</div>
+        <div class="stat-lbl">كجم مُرفعة</div>
+      </div>
+    </div>
+
+    <!-- STREAK TRACKER -->
+    <div class="grid2" style="margin-bottom:18px">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div class="streak-flame">🔥</div>
+          <div>
+            <div style="font-size:16px;font-weight:900">سلسلة التمارين</div>
+            <div style="font-size:12px;color:var(--muted)">آخر 7 أيام</div>
+          </div>
+        </div>
+        <div class="streak-days" id="streak-days"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--muted2);margin-bottom:12px">🎯 هدف الأسبوع</div>
+        <div id="week-goal-bars"></div>
+      </div>
+    </div>
+
+    <!-- RECENT PR -->
+    <div class="card">
+      <div class="section-title">🏆 أحدث الأرقام القياسية</div>
+      <div id="dash-prs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: WORKOUT                      -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-workout">
+  <div class="topbar">
+    <div><div class="page-title">التمرين</div><div class="page-subtitle">سجّل جلستك اليومية</div></div>
+  </div>
+  <div style="padding:20px 28px 0">
+    <div class="day-selector" id="day-selector"></div>
+    <div id="session-header" class="card card-glow" style="margin-bottom:16px"></div>
+    <div id="exercises-list"></div>
+    <div class="card" style="margin-top:6px">
+      <div style="font-size:13px;font-weight:700;color:var(--muted2);margin-bottom:8px">📝 ملاحظات الجلسة</div>
+      <textarea id="session-note" class="inp" style="min-height:70px;resize:vertical" placeholder="شعورك، أي ألم، أشياء تريد تحسينها..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" onclick="saveNote()">💾 حفظ الملاحظة</button>
+        <button class="btn btn-green" onclick="finishSession()">✅ إنهاء الجلسة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: LIBRARY                      -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-library">
+  <div class="topbar">
+    <div><div class="page-title">مكتبة التمارين</div><div class="page-subtitle">أكثر من 60 تمرين مع فيديوهات شرح</div></div>
+  </div>
+  <div style="padding:20px 28px 0">
+    <input class="inp" style="margin-bottom:14px" placeholder="🔍 ابحث عن تمرين..." id="lib-search" oninput="renderLibrary()">
+    <div class="filter-bar" id="lib-filters"></div>
+    <div class="lib-grid" id="lib-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: PROGRESS                     -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-progress">
+  <div class="topbar">
+    <div><div class="page-title">التقدم</div><div class="page-subtitle">تتبع نموك وتطورك</div></div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)">← الأسبوع السابق</button>
+      <div id="week-label" style="font-size:13px;font-weight:700;color:var(--muted2);padding:0 4px"></div>
+      <button class="btn btn-ghost btn-sm" id="btn-next" onclick="changeWeek(1)">الأسبوع التالي →</button>
+    </div>
+  </div>
+  <div style="padding:20px 28px 0">
+    <div class="grid2" style="margin-bottom:18px">
+      <div class="card">
+        <div style="font-size:13px;color:var(--muted2);font-weight:700;margin-bottom:10px">📊 إجمالي الأسبوع</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--acc2)" id="prog-pct">0%</div>
+          <div style="flex:1"><div class="bar-bg bar-xl"><div class="bar-fill" id="prog-bar" style="background:linear-gradient(90deg,var(--acc),var(--acc2))"></div></div><div id="prog-sub" style="font-size:12px;color:var(--muted);margin-top:6px"></div></div>
+        </div>
+      </div>
+      <div class="card" id="prog-days-card"></div>
+    </div>
+    <div id="weight-progress-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: HISTORY                      -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-history">
+  <div class="topbar"><div><div class="page-title">السجل</div><div class="page-subtitle">كل جلساتك السابقة</div></div></div>
+  <div style="padding:20px 28px 0"><div id="history-list"></div></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: BODY                         -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-body">
+  <div class="topbar"><div><div class="page-title">الجسم والوزن</div><div class="page-subtitle">راقب تغيرات جسمك</div></div></div>
+  <div style="padding:20px 28px 0">
+    <div class="grid2" style="margin-bottom:18px">
+      <div class="card">
+        <div class="inp-label">تسجيل وزن جديد</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input id="bw-val" class="inp" type="number" placeholder="الوزن كجم" step="0.1" style="flex:1">
+          <button class="btn btn-primary" onclick="addBW()">+ أضف</button>
+        </div>
+        <div class="inp-label">القياسات (سم) — اختياري</div>
+        <div class="grid2" style="gap:8px">
+          <input id="m-chest" class="inp" type="number" placeholder="صدر">
+          <input id="m-waist" class="inp" type="number" placeholder="خصر">
+          <input id="m-arm" class="inp" type="number" placeholder="ذراع">
+          <input id="m-thigh" class="inp" type="number" placeholder="فخذ">
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%" onclick="addMeasurements()">حفظ القياسات</button>
+      </div>
+      <div class="card" id="bw-stats-card">
+        <div class="empty-state" style="padding:20px"><div class="e-icon">⚖️</div><div class="e-title">سجّل وزنك أولاً</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="section-title">📈 منحنى الوزن</div>
+      <canvas id="bw-chart" height="180"></canvas>
+    </div>
+    <div class="card"><div class="section-title">📋 سجل الوزن</div><div id="bw-list"></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: RECORDS                      -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-records">
+  <div class="topbar"><div><div class="page-title">الأرقام القياسية</div><div class="page-subtitle">أعلى وزن رفعته في كل تمرين</div></div></div>
+  <div style="padding:20px 28px 0">
+    <div class="card" style="margin-bottom:18px">
+      <div style="font-size:13px;color:var(--muted2);margin-bottom:6px">🏅 أضف رقماً قياسياً يدوياً</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="pr-ex-select" class="inp" style="flex:2"></select>
+        <input id="pr-weight" class="inp" type="number" placeholder="الوزن كجم" step="0.5" style="flex:1;min-width:100px">
+        <input id="pr-reps" class="inp" type="number" placeholder="تكرارات" style="flex:1;min-width:80px">
+        <button class="btn btn-primary" onclick="addPR()">+ أضف</button>
+      </div>
+    </div>
+    <div id="pr-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- PAGE: MANAGE                       -->
+<!-- ══════════════════════════════════ -->
+<div class="page" id="page-manage">
+  <div class="topbar"><div><div class="page-title">إدارة الجدول</div><div class="page-subtitle">خصّص كل شيء</div></div></div>
+  <div style="padding:20px 28px 0">
+    <button class="btn btn-primary" style="margin-bottom:16px" onclick="openAddDay()">+ إضافة يوم تدريب</button>
+    <div id="manage-list"></div>
+    <div class="divider"></div>
+    <div class="card" style="border-color:rgba(255,56,96,.2)">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px">⚠️ منطقة الخطر</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-danger btn-sm" onclick="exportData()">📤 تصدير البيانات</button>
+        <button class="btn btn-ghost btn-sm" onclick="importData()">📥 استيراد البيانات</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 مسح جميع البيانات</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+<div id="toast"></div>
+
+<!-- ══ MODALS ══════════════════════════ -->
+
+<!-- Edit/Add Exercise -->
+<div class="modal-overlay" id="modal-ex">
+<div class="modal">
+  <div class="modal-title"><span>💪</span><span id="modal-ex-title">تمرين</span></div>
+  <input type="hidden" id="edit-dk"><input type="hidden" id="edit-idx">
+  <div class="grid2" style="gap:10px">
+    <div class="form-group">
+      <label class="inp-label">الاسم (English)</label>
+      <input id="e-name-en" class="inp" placeholder="Barbell Squat">
+    </div>
+    <div class="form-group">
+      <label class="inp-label">الاسم بالعربي</label>
+      <input id="e-name-ar" class="inp" placeholder="سكوات بالباربيل">
+    </div>
+  </div>
+  <div class="grid2" style="gap:10px">
+    <div class="form-group"><label class="inp-label">عدد السيتات</label><input id="e-sets" class="inp" type="number" min="1" max="20" value="3"></div>
+    <div class="form-group"><label class="inp-label">التكرارات</label><input id="e-reps" class="inp" placeholder="8-12"></div>
+  </div>
+  <div class="grid2" style="gap:10px">
+    <div class="form-group"><label class="inp-label">وقت الراحة</label><input id="e-rest" class="inp" placeholder="90 ث"></div>
+    <div class="form-group"><label class="inp-label">الصعوبة</label>
+      <select id="e-diff" class="inp"><option value="مبتدئ">مبتدئ</option><option value="متوسط" selected>متوسط</option><option value="متقدم">متقدم</option></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="inp-label">العضلات المستهدفة (الرئيسية)</label>
+    <input id="e-muscles-p" class="inp" placeholder="صدر، كتف (مفصول بفاصلة)">
+  </div>
+  <div class="form-group">
+    <label class="inp-label">العضلات المساعدة</label>
+    <input id="e-muscles-s" class="inp" placeholder="ترايسبس، كور">
+  </div>
+  <div class="form-group">
+    <label class="inp-label">رابط YouTube (فيديو شرح)</label>
+    <input id="e-video" class="inp" placeholder="https://youtube.com/watch?v=...">
+  </div>
+  <div class="form-group">
+    <label class="inp-label">رابط صورة / GIF (اختياري)</label>
+    <input id="e-gif" class="inp" placeholder="https://...gif">
+  </div>
+  <div class="form-group">
+    <label class="inp-label">ملاحظات وتعليمات الشكل الصحيح</label>
+    <textarea id="e-notes" class="inp" style="min-height:60px;resize:vertical" placeholder="حافظ على ظهرك مستقيماً، ركبتيك خلف أصابع القدم..."></textarea>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" style="flex:1" onclick="saveExercise()">💾 حفظ</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-ex')">إلغاء</button>
+  </div>
+</div>
+</div>
+
+<!-- Add Day -->
+<div class="modal-overlay" id="modal-day">
+<div class="modal">
+  <div class="modal-title"><span>📅</span><span>إضافة يوم تدريب</span></div>
+  <div class="form-group"><label class="inp-label">اسم اليوم</label><input id="nd-label" class="inp" placeholder="الثلاثاء"></div>
+  <div class="form-group"><label class="inp-label">المعرّف (إنجليزي)</label><input id="nd-key" class="inp" placeholder="tuesday"></div>
+  <div class="form-group"><label class="inp-label">التركيز / العضلات</label><input id="nd-focus" class="inp" placeholder="بايسبس + ترايسبس"></div>
+  <div class="form-group"><label class="inp-label">اللون</label><input id="nd-color" type="color" value="#00d68f" style="height:40px;border:none;background:none;cursor:pointer;width:60px"></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" style="flex:1" onclick="saveNewDay()">إضافة</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-day')">إلغاء</button>
+  </div>
+</div>
+</div>
+
+<!-- Edit Day -->
+<div class="modal-overlay" id="modal-edit-day">
+<div class="modal">
+  <div class="modal-title"><span>✏️</span><span>تعديل اليوم</span></div>
+  <input type="hidden" id="eday-key">
+  <div class="form-group"><label class="inp-label">اسم اليوم</label><input id="eday-label" class="inp"></div>
+  <div class="form-group"><label class="inp-label">التركيز</label><input id="eday-focus" class="inp"></div>
+  <div class="form-group"><label class="inp-label">اللون</label><input id="eday-color" type="color" style="height:40px;border:none;background:none;cursor:pointer;width:60px"></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" style="flex:1" onclick="saveEditDay()">حفظ</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-edit-day')">إلغاء</button>
+  </div>
+</div>
+</div>
+
+<!-- Library Exercise Detail -->
+<div class="modal-overlay" id="modal-lib">
+<div class="modal" style="max-width:560px">
+  <div class="modal-title"><span id="lib-modal-icon">💪</span><span id="lib-modal-title"></span></div>
+  <div id="lib-modal-body"></div>
+  <div style="display:flex;gap:8px;margin-top:14px">
+    <button class="btn btn-primary" style="flex:1" id="lib-add-btn">+ أضف للجدول</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-lib')">إغلاق</button>
+  </div>
+</div>
+</div>
+
+<!-- Add to Schedule from Library -->
+<div class="modal-overlay" id="modal-lib-add">
+<div class="modal">
+  <div class="modal-title"><span>📅</span><span>أضف للجدول</span></div>
+  <input type="hidden" id="lib-add-ex-key">
+  <div class="form-group">
+    <label class="inp-label">اختر اليوم</label>
+    <select id="lib-day-select" class="inp"></select>
+  </div>
+  <div class="grid2" style="gap:10px">
+    <div class="form-group"><label class="inp-label">عدد السيتات</label><input id="lib-sets" class="inp" type="number" value="3" min="1"></div>
+    <div class="form-group"><label class="inp-label">التكرارات</label><input id="lib-reps" class="inp" value="10–12"></div>
+  </div>
+  <div class="form-group"><label class="inp-label">وقت الراحة</label><input id="lib-rest" class="inp" value="90 ث"></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" style="flex:1" onclick="confirmLibAdd()">إضافة ✓</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-lib-add')">إلغاء</button>
+  </div>
+</div>
+</div>
+
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+  
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+const LIBRARY = {
+  // CHEST
+  bench_press:{nameEn:"Barbell Bench Press",nameAr:"بنش برس بالباربيل",muscle:"صدر",musclesP:["صدر"],musclesS:["ترايسبس","كتف أمامي"],cat:"صدر",diff:"متوسط",icon:"🏋️",video:"https://www.youtube.com/embed/vthMCtgVtFw",notes:"حافظ على ثبات الكتفين على المقعد، ارجع الباربيل ببطء.",gif:""},
+  floor_press:{nameEn:"Floor Press",nameAr:"بنش برس أرضي",muscle:"صدر",musclesP:["صدر"],musclesS:["ترايسبس"],cat:"صدر",diff:"مبتدئ",icon:"🤸",video:"https://www.youtube.com/embed/uUGDRwge4F8",notes:"رائع لمن لا يملك مقعد.",gif:""},
+  incline_press:{nameEn:"Incline Dumbbell Press",nameAr:"بنش برس مائل",muscle:"صدر",musclesP:["صدر علوي"],musclesS:["كتف","ترايسبس"],cat:"صدر",diff:"متوسط",icon:"📐",video:"https://www.youtube.com/embed/8iPEnn-ltC8",notes:"زاوية 30-45 درجة للصدر العلوي.",gif:""},
+  pushup:{nameEn:"Push-Up",nameAr:"تمرين الضغط",muscle:"صدر",musclesP:["صدر"],musclesS:["ترايسبس","كتف"],cat:"صدر",diff:"مبتدئ",icon:"👊",video:"https://www.youtube.com/embed/IODxDxX7oi4",notes:"جسمك خط مستقيم من الرأس للكعب.",gif:""},
+  wide_pushup:{nameEn:"Wide Push-Up",nameAr:"بوش أب واسع",muscle:"صدر",musclesP:["صدر"],musclesS:["كتف"],cat:"صدر",diff:"مبتدئ",icon:"↔️",video:"https://www.youtube.com/embed/IODxDxX7oi4",notes:"يدان أعرض من الكتف لتركيز أكثر على الصدر.",gif:""},
+  dip:{nameEn:"Dips",nameAr:"ديبس",muscle:"صدر",musclesP:["صدر سفلي","ترايسبس"],musclesS:["كتف"],cat:"صدر",diff:"متوسط",icon:"⬇️",video:"https://www.youtube.com/embed/2z8JmcrW-As",notes:"أمل جسمك للأمام لتركيز أكثر على الصدر.",gif:""},
+  // BACK
+  deadlift:{nameEn:"Barbell Deadlift",nameAr:"ديدليفت بالباربيل",muscle:"ظهر",musclesP:["ظهر سفلي","ترابيزيوس"],musclesS:["أرداف","هامستر","كور"],cat:"ظهر",diff:"متقدم",icon:"🏋️",video:"https://www.youtube.com/embed/op9kVnSso6Q",notes:"ظهر مستقيم دائماً، ابدأ بوزن خفيف.",gif:""},
+  bent_row:{nameEn:"Bent Over Row",nameAr:"بنت أوفر رو",muscle:"ظهر",musclesP:["لاتيسيموس","رومبويد"],musclesS:["بايسبس","كور"],cat:"ظهر",diff:"متوسط",video:"https://www.youtube.com/embed/vT2GjY_Umpw",icon:"🔙",notes:"ظهر موازٍ للأرض، اسحب نحو الحوض.",gif:""},
+  pullup:{nameEn:"Pull-Up",nameAr:"عقلة",muscle:"ظهر",musclesP:["لاتيسيموس"],musclesS:["بايسبس","كور"],cat:"ظهر",diff:"متقدم",icon:"🆙",video:"https://www.youtube.com/embed/eGo4IYlbE5g",notes:"اسحب حتى يصل ذقنك فوق البار.",gif:""},
+  superman:{nameEn:"Superman Hold",nameAr:"سوبرمان",muscle:"ظهر",musclesP:["ظهر سفلي","أرداف"],musclesS:["هامستر"],cat:"ظهر",diff:"مبتدئ",icon:"🦸",video:"https://www.youtube.com/embed/z6PJMT2y8GQ",notes:"ارفع يديك وقدميك في نفس الوقت.",gif:""},
+  good_morning:{nameEn:"Good Morning",nameAr:"جود مورنينج",muscle:"ظهر",musclesP:["ظهر سفلي","هامستر"],musclesS:["أرداف","كور"],cat:"ظهر",diff:"متوسط",icon:"🌅",video:"https://www.youtube.com/embed/YA-h3n9L4YU",notes:"ظهر مستقيم، انحن من الورك.",gif:""},
+  // SHOULDERS
+  ohp:{nameEn:"Overhead Barbell Press",nameAr:"أوفر هيد برس",muscle:"كتف",musclesP:["كتف أمامي","كتف جانبي"],musclesS:["ترايسبس","كور"],cat:"كتف",diff:"متوسط",icon:"⬆️",video:"https://www.youtube.com/embed/2yjwXTZQDDI",notes:"اشد البطن، لا تقوس الظهر.",gif:""},
+  lateral_raise:{nameEn:"Lateral Raise",nameAr:"لاترال ريز",muscle:"كتف",musclesP:["كتف جانبي"],musclesS:[],cat:"كتف",diff:"مبتدئ",icon:"🦅",video:"https://www.youtube.com/embed/3VcKaXpzqRo",notes:"ارفع للجانب حتى مستوى الكتف فقط.",gif:""},
+  front_raise:{nameEn:"Front Raise",nameAr:"فرونت ريز",muscle:"كتف",musclesP:["كتف أمامي"],musclesS:[],cat:"كتف",diff:"مبتدئ",icon:"☝️",video:"https://www.youtube.com/embed/gkKkADqAOjE",notes:"لا ترفع أعلى من مستوى الكتف.",gif:""},
+  face_pull:{nameEn:"Face Pull",nameAr:"فيس بول",muscle:"كتف",musclesP:["كتف خلفي","رومبويد"],musclesS:[],cat:"كتف",diff:"مبتدئ",icon:"🤜",video:"https://www.youtube.com/embed/HSoHeSjFOWA",notes:"اسحب نحو الوجه بمرفقين مرتفعين.",gif:""},
+  // BICEPS
+  barbell_curl:{nameEn:"Barbell Curl",nameAr:"باربيل كيرل",muscle:"بايسبس",musclesP:["بايسبس"],musclesS:["ساعد"],cat:"بايسبس",diff:"مبتدئ",icon:"💪",video:"https://www.youtube.com/embed/kwG2ipFRgfo",notes:"ثبّت المرفقين على الجانبين.",gif:""},
+  hammer_curl:{nameEn:"Hammer Curl",nameAr:"هامر كيرل",muscle:"بايسبس",musclesP:["بايسبس","براكياليس"],musclesS:["ساعد"],cat:"بايسبس",diff:"مبتدئ",icon:"🔨",video:"https://www.youtube.com/embed/zC3nLlEvin4",notes:"إبهامك للأعلى طوال التمرين.",gif:""},
+  concentration_curl:{nameEn:"Concentration Curl",nameAr:"كيرل تركيز",muscle:"بايسبس",musclesP:["بايسبس"],musclesS:[],cat:"بايسبس",diff:"مبتدئ",icon:"🎯",video:"https://www.youtube.com/embed/Jvj2wV0vOYU",notes:"ضع مرفقك على داخل الفخذ.",gif:""},
+  // TRICEPS
+  tri_overhead:{nameEn:"Overhead Triceps Extension",nameAr:"ترايسبس أوفر هيد",muscle:"ترايسبس",musclesP:["ترايسبس"],musclesS:[],cat:"ترايسبس",diff:"مبتدئ",icon:"↕️",video:"https://www.youtube.com/embed/YbX7Wd8jQ-Q",notes:"ثبّت مرفقيك قريباً من الرأس.",gif:""},
+  tricep_pushdown:{nameEn:"Triceps Pushdown",nameAr:"تمرين ترايسبس",muscle:"ترايسبس",musclesP:["ترايسبس"],musclesS:[],cat:"ترايسبس",diff:"مبتدئ",icon:"⬇️",video:"https://www.youtube.com/embed/vB5OHsJ3EME",notes:"ثبّت مرفقيك على الجانبين.",gif:""},
+  close_grip_press:{nameEn:"Close Grip Bench Press",nameAr:"بنش برس ضيق",muscle:"ترايسبس",musclesP:["ترايسبس"],musclesS:["صدر"],cat:"ترايسبس",diff:"متوسط",icon:"🤜",video:"https://www.youtube.com/embed/nEF0bv2FW94",notes:"يدان متقاربتان على الباربيل.",gif:""},
+  // LEGS
+  squat:{nameEn:"Barbell Squat",nameAr:"سكوات بالباربيل",muscle:"أرجل",musclesP:["كوادريسبس","أرداف"],musclesS:["هامستر","كور"],cat:"أرجل",diff:"متوسط",icon:"🦵",video:"https://www.youtube.com/embed/ultWZbUMPL8",notes:"ركبتيك تتبع أصابع القدم، ظهر مستقيم.",gif:""},
+  rdl:{nameEn:"Romanian Deadlift",nameAr:"رومانيان ديدليفت",muscle:"أرجل",musclesP:["هامستر","أرداف"],musclesS:["ظهر سفلي"],cat:"أرجل",diff:"متوسط",icon:"🏋️",video:"https://www.youtube.com/embed/JCXUYuzwNrM",notes:"حافظ على الباربيل قريباً من الجسم.",gif:""},
+  lunge:{nameEn:"Barbell Lunges",nameAr:"لانجز بالأوزان",muscle:"أرجل",musclesP:["كوادريسبس","أرداف"],musclesS:["هامستر","بالانس"],cat:"أرجل",diff:"متوسط",icon:"🚶",video:"https://www.youtube.com/embed/D7KaRcUTQeE",notes:"خطوة كبيرة، ركبتك الخلفية تقترب من الأرض.",gif:""},
+  calf_raise:{nameEn:"Calf Raise",nameAr:"كالف ريز",muscle:"أرجل",musclesP:["ساق"],musclesS:[],cat:"أرجل",diff:"مبتدئ",icon:"⬆️",video:"https://www.youtube.com/embed/gwLzBJYoWlI",notes:"ارفع ببطء، انزل ببطء أكثر.",gif:""},
+  goblet_squat:{nameEn:"Goblet Squat",nameAr:"قوبلت سكوات",muscle:"أرجل",musclesP:["كوادريسبس"],musclesS:["أرداف","كور"],cat:"أرجل",diff:"مبتدئ",icon:"🏆",video:"https://www.youtube.com/embed/MxsFDhcyFyE",notes:"احمل الوزن أمام الصدر.",gif:""},
+  // CORE
+  plank:{nameEn:"Plank",nameAr:"بلانك",muscle:"كور",musclesP:["بطن","كور"],musclesS:["كتف","ظهر سفلي"],cat:"كور",diff:"مبتدئ",icon:"📏",video:"https://www.youtube.com/embed/ASdvN_XEl_c",notes:"لا تخفض وركيك، ابقَ مشدوداً.",gif:""},
+  crunch:{nameEn:"Crunches",nameAr:"كرانش",muscle:"كور",musclesP:["بطن علوي"],musclesS:[],cat:"كور",diff:"مبتدئ",icon:"🔄",video:"https://www.youtube.com/embed/Xyd_fa5zoEU",notes:"لا تسحب رقبتك.",gif:""},
+  leg_raise:{nameEn:"Leg Raise",nameAr:"ليج ريز",muscle:"كور",musclesP:["بطن سفلي"],musclesS:["كور"],cat:"كور",diff:"مبتدئ",icon:"🦵",video:"https://www.youtube.com/embed/l4kQd9eWclE",notes:"لا ترفع وركيك عن الأرض.",gif:""},
+  russian_twist:{nameEn:"Russian Twist",nameAr:"روسيان تويست",muscle:"كور",musclesP:["بطن جانبي"],musclesS:["كور"],cat:"كور",diff:"مبتدئ",icon:"🔀",video:"https://www.youtube.com/embed/wkD8rjkodUI",notes:"يمكنك إضافة وزن للصعوبة.",gif:""},
+  ab_wheel:{nameEn:"Ab Wheel Rollout",nameAr:"عجلة البطن",muscle:"كور",musclesP:["كور كامل"],musclesS:["كتف","ظهر"],cat:"كور",diff:"متقدم",icon:"☸️",video:"https://www.youtube.com/embed/AoB0lnRwqvk",notes:"تمرين صعب جداً، ابدأ بنطاق حركة صغير.",gif:""},
+  // CARDIO
+  hiit:{nameEn:"HIIT Cardio",nameAr:"كارديو متقطع",muscle:"كارديو",musclesP:["جسم كامل"],musclesS:[],cat:"كارديو",diff:"متوسط",icon:"🏃",video:"https://www.youtube.com/embed/oDdkytliOqE",notes:"40 ثانية شغل / 20 ثانية راحة.",gif:""},
+  jumping_jacks:{nameEn:"Jumping Jacks",nameAr:"جمبينج جاكس",muscle:"كارديو",musclesP:["جسم كامل"],musclesS:[],cat:"كارديو",diff:"مبتدئ",icon:"⭐",video:"https://www.youtube.com/embed/c4DAnQ6DtF8",notes:"وتيرة ثابتة لمدة 10 دقائق.",gif:""},
+  high_knees:{nameEn:"High Knees",nameAr:"هاي نيز",muscle:"كارديو",musclesP:["كوادريسبس","كور"],musclesS:[],cat:"كارديو",diff:"مبتدئ",icon:"🏃",video:"https://www.youtube.com/embed/tx5rgpGIyYs",notes:"ارفع ركبتيك فوق مستوى الخصر.",gif:""},
+  burpee:{nameEn:"Burpees",nameAr:"بيربي",muscle:"كارديو",musclesP:["جسم كامل"],musclesS:[],cat:"كارديو",diff:"متقدم",icon:"💥",video:"https://www.youtube.com/embed/dZgVxmf6jkA",notes:"من أصعب وأفضل تمارين الكارديو.",gif:""},
+  mountain_climber:{nameEn:"Mountain Climbers",nameAr:"ماونتن كلايمبرز",muscle:"كارديو",musclesP:["كور","كارديو"],musclesS:["كتف"],cat:"كارديو",diff:"مبتدئ",icon:"⛰️",video:"https://www.youtube.com/embed/nmwgirgXLYM",notes:"جسمك خط مستقيم، وتيرة سريعة.",gif:""},
+};
+
+const DEFAULT_SCHEDULE = {
+  monday:{label:"الاثنين",focus:"Chest / Shoulder / Triceps",color:"#ff4500",exercises:[
+    {id:"e1",nameEn:"Barbell Floor Press",nameAr:"بنش برس أرضي",sets:4,reps:"8–10",rest:"90",musclesP:["صدر"],musclesS:["ترايسبس"],video:"https://www.youtube.com/embed/uUGDRwge4F8",gif:"",notes:"",diff:"متوسط"},
+    {id:"e2",nameEn:"Overhead Barbell Press",nameAr:"أوفر هيد برس",sets:3,reps:"10–12",rest:"90",musclesP:["كتف"],musclesS:["ترايسبس"],video:"https://www.youtube.com/embed/2yjwXTZQDDI",gif:"",notes:"",diff:"متوسط"},
+    {id:"e3",nameEn:"Wide Push-Up",nameAr:"بوش أب واسع",sets:3,reps:"Max",rest:"60",musclesP:["صدر"],musclesS:["كتف"],video:"https://www.youtube.com/embed/IODxDxX7oi4",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e4",nameEn:"Lateral Raise",nameAr:"لاترال ريز",sets:3,reps:"12–15",rest:"60",musclesP:["كتف جانبي"],musclesS:[],video:"https://www.youtube.com/embed/3VcKaXpzqRo",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e5",nameEn:"Overhead Triceps Extension",nameAr:"ترايسبس أوفر هيد",sets:3,reps:"12",rest:"60",musclesP:["ترايسبس"],musclesS:[],video:"https://www.youtube.com/embed/YbX7Wd8jQ-Q",gif:"",notes:"",diff:"مبتدئ"},
+  ]},
+  wednesday:{label:"الأربعاء",focus:"Back / Biceps",color:"#00b4d8",exercises:[
+    {id:"e6",nameEn:"Barbell Deadlift",nameAr:"ديدليفت",sets:4,reps:"6–8",rest:"120",musclesP:["ظهر","أرداف"],musclesS:["هامستر","كور"],video:"https://www.youtube.com/embed/op9kVnSso6Q",gif:"",notes:"أهم شيء: ظهر مستقيم",diff:"متقدم"},
+    {id:"e7",nameEn:"Bent Over Row",nameAr:"بنت أوفر رو",sets:4,reps:"8–10",rest:"90",musclesP:["ظهر"],musclesS:["بايسبس"],video:"https://www.youtube.com/embed/vT2GjY_Umpw",gif:"",notes:"",diff:"متوسط"},
+    {id:"e8",nameEn:"Barbell Curl",nameAr:"باربيل كيرل",sets:3,reps:"10–12",rest:"60",musclesP:["بايسبس"],musclesS:["ساعد"],video:"https://www.youtube.com/embed/kwG2ipFRgfo",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e9",nameEn:"Hammer Curl",nameAr:"هامر كيرل",sets:3,reps:"12",rest:"60",musclesP:["بايسبس"],musclesS:[],video:"https://www.youtube.com/embed/zC3nLlEvin4",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e10",nameEn:"Superman Hold",nameAr:"سوبرمان",sets:3,reps:"15",rest:"45",musclesP:["ظهر سفلي"],musclesS:[],video:"https://www.youtube.com/embed/z6PJMT2y8GQ",gif:"",notes:"",diff:"مبتدئ"},
+  ]},
+  friday:{label:"الجمعة",focus:"Legs / Core / Cardio",color:"#9d4edd",exercises:[
+    {id:"e11",nameEn:"Barbell Squat",nameAr:"سكوات بالباربيل",sets:4,reps:"8–10",rest:"90",musclesP:["كوادريسبس","أرداف"],musclesS:["هامستر","كور"],video:"https://www.youtube.com/embed/ultWZbUMPL8",gif:"",notes:"",diff:"متوسط"},
+    {id:"e12",nameEn:"Romanian Deadlift",nameAr:"رومانيان ديدليفت",sets:3,reps:"10–12",rest:"90",musclesP:["هامستر","أرداف"],musclesS:["ظهر سفلي"],video:"https://www.youtube.com/embed/JCXUYuzwNrM",gif:"",notes:"",diff:"متوسط"},
+    {id:"e13",nameEn:"Barbell Lunges",nameAr:"لانجز بالأوزان",sets:3,reps:"12 each",rest:"60",musclesP:["كوادريسبس"],musclesS:["أرداف"],video:"https://www.youtube.com/embed/D7KaRcUTQeE",gif:"",notes:"",diff:"متوسط"},
+    {id:"e14",nameEn:"Calf Raise",nameAr:"كالف ريز",sets:3,reps:"15–20",rest:"45",musclesP:["ساق"],musclesS:[],video:"https://www.youtube.com/embed/gwLzBJYoWlI",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e15",nameEn:"Plank",nameAr:"بلانك",sets:3,reps:"45 sec",rest:"30",musclesP:["كور"],musclesS:[],video:"https://www.youtube.com/embed/ASdvN_XEl_c",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e16",nameEn:"Crunches",nameAr:"كرانش",sets:3,reps:"20",rest:"30",musclesP:["بطن"],musclesS:[],video:"https://www.youtube.com/embed/Xyd_fa5zoEU",gif:"",notes:"",diff:"مبتدئ"},
+    {id:"e17",nameEn:"HIIT Cardio",nameAr:"كارديو متقطع",sets:1,reps:"10 min",rest:"0",musclesP:["كارديو"],musclesS:[],video:"https://www.youtube.com/embed/oDdkytliOqE",gif:"",notes:"",diff:"متوسط"},
+  ]}
+};
+
+function loadD(){try{const r=localStorage.getItem("IF_v3");return r?JSON.parse(r):{schedule:JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),logs:{},weights:{},notes:{},bodyWeight:[],measurements:[],prs:{},dayOrder:["monday","wednesday","friday"]}}catch{return{schedule:JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),logs:{},weights:{},notes:{},bodyWeight:[],measurements:[],prs:{},dayOrder:["monday","wednesday","friday"]}}}
+function saveD(){localStorage.setItem("IF_v3",JSON.stringify(D));}
+let D=loadD();
+if(!D.dayOrder)D.dayOrder=Object.keys(D.schedule);
+if(!D.prs)D.prs={};
+if(!D.measurements)D.measurements=[];
+let activeDay=D.dayOrder[0]||"monday";
+let weekOff=0;
+let openExId=null;
+let timerInterval=null,timerTotal=0,timerLeft=0;
+let libFilterCat="كل";
+let currentLibEx=null;
+
+// ── UTILS ──────────────────────────────
+function getWeekKey(off=0){const n=new Date();n.setDate(n.getDate()+off*7);const m=new Date(n);m.setDate(n.getDate()-((n.getDay()+6)%7));return m.toISOString().slice(0,10);}
+function sk(dk,off=0){return `${getWeekKey(off)}_${dk}`;}
+function toast(msg,color){
+  const t=document.getElementById("toast");t.textContent=msg;
+  t.style.borderColor=color||"var(--border2)";t.style.color=color?"#000":"var(--text)";
+  t.style.background=color?(color+"22"):"var(--s2)";
+  t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);
+}
+function closeModal(id){document.getElementById(id).classList.remove("open");}
+function openModal(id){document.getElementById(id).classList.add("open");}
+function embedUrl(url){if(!url)return null;if(url.includes("embed/"))return url;const m=url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);return m?`https://www.youtube.com/embed/${m[1]}`:null;}
+function getProgress(dk,off=0){
+  const s=sk(dk,off),day=D.schedule[dk];if(!day)return{done:0,total:0,pct:0};
+  const log=D.logs[s]||{};let done=0,total=0;
+  day.exercises.forEach(ex=>{for(let i=0;i<ex.sets;i++){total++;if(log[ex.id]?.[i])done++;}});
+  return{done,total,pct:total?Math.round(done/total*100):0};
+}
+function getExEmoji(name){
+  const n=name.toLowerCase();
+  if(n.includes("squat")||n.includes("lunge")||n.includes("calf")||n.includes("leg"))return"🦵";
+  if(n.includes("deadlift"))return"🏋️";
+  if(n.includes("curl")||n.includes("bicep"))return"💪";
+  if(n.includes("press")||n.includes("push"))return"🤸";
+  if(n.includes("row")||n.includes("superman")||n.includes("pull"))return"🔙";
+  if(n.includes("plank")||n.includes("crunch")||n.includes("ab"))return"🧘";
+  if(n.includes("cardio")||n.includes("hiit")||n.includes("jump")||n.includes("burpee"))return"🏃";
+  if(n.includes("lateral")||n.includes("raise")||n.includes("shoulder"))return"🦅";
+  return"⚡";
+}
+function fmtDate(d){return new Date(d).toLocaleDateString("ar-SA",{year:"numeric",month:"short",day:"numeric"});}
+
+// ── NAVIGATION ─────────────────────────
+function nav(name,el){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  el.classList.add("active");
+  const renders={dashboard:renderDashboard,workout:()=>{renderDaySelector();renderSessionHeader();renderExercises();},library:renderLibrary,progress:renderProgress,history:renderHistory,body:renderBody,records:renderRecords,manage:renderManage};
+  if(renders[name])renders[name]();
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById("sidebar"),mn=document.getElementById("main"),btn=document.getElementById("sidebar-toggle-btn");
+  sb.classList.toggle("expanded");mn.classList.toggle("shifted");
+  btn.textContent=sb.classList.contains("expanded")?"▶":"◀";
+}
+
+// ── TIMER ──────────────────────────────
+function startTimer(secs){
+  stopTimer();timerTotal=secs;timerLeft=secs;
+  const el=document.getElementById("rest-timer"),cnt=document.getElementById("timer-count"),fill=document.getElementById("timer-fill");
+  el.classList.add("visible");
+  timerInterval=setInterval(()=>{
+    timerLeft--;
+    const m=Math.floor(timerLeft/60),s=timerLeft%60;
+    cnt.textContent=`${m}:${s.toString().padStart(2,"0")}`;
+    fill.style.width=((timerTotal-timerLeft)/timerTotal*100)+"%";
+    cnt.style.color=timerLeft<=10?"var(--red)":timerLeft<=30?"var(--yellow)":"var(--green)";
+    if(timerLeft<=0){stopTimer();toast("✅ انتهت الراحة — ابدأ السيت التالي!","#00d68f");}
+  },1000);
+}
+function stopTimer(){if(timerInterval)clearInterval(timerInterval);timerInterval=null;document.getElementById("rest-timer").classList.remove("visible");document.getElementById("timer-fill").style.width="0%";}
+
+// ── DASHBOARD ──────────────────────────
+function renderDashboard(){
+  const now=new Date();
+  const days=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+  document.getElementById("dash-date").textContent=now.toLocaleDateString("ar-SA",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  // Stats
+  let totalSessions=0,totalSets=0,totalWeight=0;
+  Object.entries(D.logs).forEach(([key,log])=>{
+    const parts=key.split("_"),dk=parts[parts.length-1],day=D.schedule[dk];if(!day)return;
+    let hasDone=false;
+    day.exercises.forEach(ex=>{for(let i=0;i<ex.sets;i++){if(log[ex.id]?.[i]){totalSets++;hasDone=true;}}});
+    if(hasDone)totalSessions++;
+  });
+  Object.entries(D.weights).forEach(([sk,w])=>{
+    const dk=sk.split("_").pop(),day=D.schedule[dk];if(!day)return;
+    Object.entries(w).forEach(([exId,wt])=>{
+      const ex=day.exercises.find(e=>e.id===exId);if(!ex)return;
+      totalWeight+=parseFloat(wt||0)*ex.sets*parseInt(ex.reps)||0;
+    });
+  });
+  document.getElementById("stat-total-sessions").textContent=totalSessions;
+  document.getElementById("stat-total-sets").textContent=totalSets;
+  document.getElementById("stat-total-weight").textContent=totalWeight>1000?Math.round(totalWeight/100)/10+"k":Math.round(totalWeight);
+  // Week ring
+  const weekSessions=D.dayOrder.map(dk=>getProgress(dk));
+  const wDone=weekSessions.reduce((s,d)=>s+d.done,0),wTotal=weekSessions.reduce((s,d)=>s+d.total,0);
+  const wPct=wTotal?Math.round(wDone/wTotal*100):0;
+  document.getElementById("ring-pct").textContent=wPct+"%";
+  const circ=314,offset=circ-(circ*wPct/100);
+  document.getElementById("week-ring").style.strokeDashoffset=offset;
+  // Streak
+  let streak=0;
+  for (let w = 0; w >= -10; w--) {
+    const hasSessions=D.dayOrder.some(dk=>{const s=D.logs[sk(dk,w)];return s&&Object.values(s).some(sets=>sets.some(Boolean));});
+    if(hasSessions)streak++;else if(w<0)break;
+  }
+  document.getElementById("stat-streak").textContent=streak;
+  document.getElementById("dash-streak-badge").textContent="🔥 "+streak+" أسابيع";
+  // Streak dots
+  const sd=document.getElementById("streak-days");sd.innerHTML="";
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const wk=d.toISOString().slice(0,10).slice(0,7);
+    const hasLog=Object.keys(D.logs).some(k=>{const parts=k.split("_");return k.startsWith(parts[0]) && D.schedule[parts[1]] && Object.values(D.logs[k]).some(s=>s.some(Boolean));});
+    const dot=document.createElement("div");dot.className="streak-dot"+(i===0?" today":"");
+    dot.textContent=["أح","إث","ثل","أر","خم","جم","سب"][d.getDay()];
+    sd.appendChild(dot);
+  }
+  // Next day
+  const nextDay=D.dayOrder.find(dk=>{const p=getProgress(dk);return p.pct<100;})||D.dayOrder[0];
+  const nd=D.schedule[nextDay];
+  document.getElementById("dash-next-day").textContent=nd?`التالي: ${nd.label} — ${nd.focus}`:"أكملت الأسبوع! 🎉";
+  // Week sessions mini
+  const ws=document.getElementById("dash-week-sessions");ws.innerHTML="";
+  D.dayOrder.forEach(dk=>{
+    const d=D.schedule[dk],p=getProgress(dk);if(!d)return;
+    ws.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid ${d.color}33;border-radius:10px;padding:6px 12px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${d.color}"></div>
+      <span style="font-size:12px;font-weight:700">${d.label}</span>
+      <span style="font-size:12px;color:${p.pct===100?'var(--green)':'var(--muted2)'}">${p.pct}%</span>
+    </div>`;
+  });
+  // Week goal
+  const wg=document.getElementById("week-goal-bars");wg.innerHTML="";
+  D.dayOrder.forEach(dk=>{
+    const d=D.schedule[dk],p=getProgress(dk);if(!d)return;
+    wg.innerHTML+=`<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="font-weight:700;color:${d.color}">${d.label}</span><span style="color:var(--muted)">${p.done}/${p.total}</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${p.pct}%;background:${d.color}"></div></div>
+    </div>`;
+  });
+  // PRs
+  const prEl=document.getElementById("dash-prs");
+  const prEntries=Object.entries(D.prs).slice(0,4);
+  if(!prEntries.length){prEl.innerHTML='<div style="color:var(--muted);font-size:13px">لا توجد أرقام قياسية بعد. سجّل أوزانك!</div>';}
+  else{prEl.innerHTML=prEntries.map(([exId,pr])=>`
+    <div class="pr-row"><div><div style="font-size:13px;font-weight:700">${pr.nameEn}</div><div style="font-size:11px;color:var(--muted)">${fmtDate(pr.date)}</div></div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="font-size:16px;font-weight:900;color:var(--yellow)">${pr.weight}kg</div><div class="pr-badge">PR</div></div></div>`).join("");}
+}
+
+// ── WORKOUT ────────────────────────────
+function renderDaySelector(){
+  const sel=document.getElementById("day-selector");sel.innerHTML="";
+  D.dayOrder.forEach(dk=>{
+    const d=D.schedule[dk];if(!d)return;
+    const p=getProgress(dk);
+    const btn=document.createElement("button");
+    btn.className="day-pill"+(dk===activeDay?" active":"");
+    btn.innerHTML=d.label+(p.done>0?` <span style="font-size:11px;opacity:.8">${p.pct}%</span>`:"");
+    if(p.pct===100)btn.innerHTML+=`<span class="pct-badge">✓</span>`;
+    btn.style.cssText+=dk===activeDay?`background:${d.color};color:#000;border-color:${d.color};box-shadow:0 4px 16px ${d.color}44;`:``;
+    btn.onclick=()=>{activeDay=dk;openExId=null;renderDaySelector();renderSessionHeader();renderExercises();document.getElementById("session-note").value=D.notes[sk(dk)]||"";};
+    sel.appendChild(btn);
+  });
+}
+
+function renderSessionHeader(){
+  const d=D.schedule[activeDay];if(!d)return;
+  const p=getProgress(activeDay);
+  const el=document.getElementById("session-header");
+  el.style.borderColor=d.color+"55";el.style.background=`linear-gradient(135deg,rgba(0,0,0,0) 0%,${d.color}08 100%)`;
+  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div><div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:${d.color}">${d.label}</div>
+    <div style="font-size:13px;color:var(--muted2)">${d.focus}</div></div>
+    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;color:${p.pct===100?'var(--green)':d.color}">${p.pct}%</div>
+    <div style="font-size:11px;color:var(--muted)">${p.done}/${p.total} سيت</div></div>
+  </div>
+  <div class="bar-bg bar-thick"><div class="bar-fill" style="width:${p.pct}%;background:linear-gradient(90deg,${d.color},${d.color}99)"></div></div>`;
+}
+
+function renderExercises(){
+  const d=D.schedule[activeDay];if(!d)return;
+  const s=sk(activeDay),log=D.logs[s]||{},wts=D.weights[s]||{};
+  const list=document.getElementById("exercises-list");list.innerHTML="";
+  d.exercises.forEach((ex,idx)=>{
+    const isOpen=openExId===ex.id;
+    const embed=embedUrl(ex.video);
+    const doneSets=Array.from({length:ex.sets}).filter((_,i)=>log[ex.id]?.[i]).length;
+    const donePct=Math.round(doneSets/ex.sets*100);
+    const setsHTML=Array.from({length:ex.sets}).map((_,i)=>
+      `<button class="set-btn${log[ex.id]?.[i]?' done':''}" onclick="toggleSet('${ex.id}',${i},${ex.rest})">${log[ex.id]?.[i]?'':i+1}</button>`
+    ).join("");
+    const thumbHTML=ex.gif?`<img class="ex-thumb" src="${ex.gif}" loading="lazy">`:`<div class="ex-thumb-ph">${getExEmoji(ex.nameEn)}</div>`;
+    const muscleHTML=(ex.musclesP||[]).map(m=>`<span class="ex-chip ex-muscle-chip">${m}</span>`).join("")+(ex.musclesS||[]).map(m=>`<span class="ex-chip">${m}</span>`).join("");
+    const diffColor=ex.diff==="مبتدئ"?"var(--green)":ex.diff==="متقدم"?"var(--red)":"var(--yellow)";
+    const card=document.createElement("div");card.className=`ex-card${isOpen?" expanded":""}`;
+    card.innerHTML=`
+      <div class="ex-head" onclick="toggleEx('${ex.id}')">
+        ${thumbHTML}
+        <div style="flex:1;min-width:0">
+          <div class="ex-name">${ex.nameEn}</div>
+          <div class="ex-name-ar">${ex.nameAr}</div>
+          <div class="ex-chips">${muscleHTML}<span class="ex-chip" style="color:${diffColor};border-color:${diffColor}44">${ex.diff||"متوسط"}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          ${wts[ex.id]?`<span style="font-size:13px;font-weight:800;color:${D.schedule[activeDay].color}">${wts[ex.id]}kg</span>`:""}
+          <div style="width:36px;text-align:center">
+            ${donePct===100?`<span style="color:var(--green);font-size:18px">✅</span>`:`<span style="font-size:11px;color:var(--muted)">${doneSets}/${ex.sets}</span>`}
+          </div>
+          <span style="color:var(--muted2);font-size:18px;transition:transform .3s;display:block;transform:${isOpen?"rotate(90deg)":"rotate(0)"}"  >›</span>
+        </div>
+      </div>
+      <div class="ex-body${isOpen?" open":""}" id="body-${ex.id}">
+        <div style="display:flex;gap:10px;align-items:center;padding:12px 0 8px;flex-wrap:wrap">
+          <span style="background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700">📊 ${ex.sets} سيت × ${ex.reps}</span>
+          <span style="background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700">⏱ ${ex.rest}ث راحة</span>
+          ${ex.notes?`<span style="background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.2);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--blue)">💡 ${ex.notes}</span>`:""}
+        </div>
+        ${embed?`<div class="video-wrap"><iframe src="${embed}" allowfullscreen loading="lazy" title="${ex.nameEn}"></iframe></div>`
+          :`<a class="yt-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.nameEn+' tutorial form')}" target="_blank">🎬 شاهد شرح ${ex.nameEn} على YouTube</a>`}
+        <div class="muscle-tags">
+          ${(ex.musclesP||[]).map(m=>`<span class="muscle-tag muscle-primary">🎯 ${m}</span>`).join("")}
+          ${(ex.musclesS||[]).map(m=>`<span class="muscle-tag muscle-secondary">➕ ${m}</span>`).join("")}
+        </div>
+        <div style="margin-bottom:6px;font-size:12px;color:var(--muted2);font-weight:700">الوزن المستخدم</div>
+        <div class="weight-row" style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <input class="inp" style="width:120px" type="number" placeholder="kg" step="0.5" value="${wts[ex.id]||""}" id="w-${ex.id}" oninput="saveWeight('${ex.id}')">
+          <span style="font-size:13px;color:var(--muted2)">كجم</span>
+          ${wts[ex.id]?`<button class="btn btn-xs" style="background:rgba(255,170,0,.1);border:1px solid rgba(255,170,0,.3);color:var(--acc3)" onclick="checkPR('${ex.id}','${ex.nameEn}')">⭐ تحقق PR</button>`:""}
+        </div>
+        <div class="sets-row">${setsHTML}</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          ${ex.rest&&ex.rest!="0"?`<button class="btn btn-ghost btn-sm" onclick="startTimer(${ex.rest})">⏱ ابدأ استراحة ${ex.rest}ث</button>`:""}
+          <button class="btn btn-ghost btn-sm" onclick="openEditEx('${activeDay}',${idx})">✏️ تعديل</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEx('${activeDay}',${idx})">🗑 حذف</button>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+  // Add button
+  const ab=document.createElement("button");ab.className="add-ex-btn";ab.textContent="+ إضافة تمرين جديد";ab.onclick=()=>openAddEx(activeDay);
+  list.appendChild(ab);
+}
+
+function toggleEx(exId){openExId=openExId===exId?null:exId;renderExercises();}
+
+function toggleSet(exId,idx,rest){
+  const s=sk(activeDay);
+  if(!D.logs[s])D.logs[s]={};
+  if(!D.logs[s][exId])D.logs[s][exId]=[];
+  const wasUndone=!D.logs[s][exId][idx];
+  D.logs[s][exId][idx]=wasUndone;
+  saveD();
+  if(wasUndone&&rest&&rest!="0")startTimer(parseInt(rest));
+  renderSessionHeader();renderDaySelector();
+  // Update just this set button
+  const btn=document.querySelector(`#body-${exId} .sets-row .set-btn:nth-child(${idx+1})`);
+  if(btn){btn.classList.toggle("done",wasUndone);btn.textContent=wasUndone?"":idx+1;}
+  // Check if all done
+  const ex=D.schedule[activeDay].exercises.find(e=>e.id===exId);
+  if(ex&&D.logs[s][exId].filter(Boolean).length===ex.sets){toast("💪 ممتاز! أتممت "+ex.nameEn,"#00d68f");}
+}
+
+function saveWeight(exId){
+  const s=sk(activeDay);if(!D.weights[s])D.weights[s]={};
+  const v=document.getElementById("w-"+exId)?.value;
+  if(v){D.weights[s][exId]=parseFloat(v);saveD();}
+}
+
+function checkPR(exId,nameEn){
+  const s=sk(activeDay),w=D.weights[s]?.[exId];if(!w)return;
+  const ex=D.schedule[activeDay].exercises.find(e=>e.id===exId);
+  const existing=D.prs[exId];
+  if(!existing||parseFloat(w)>existing.weight){
+    D.prs[exId]={nameEn,weight:parseFloat(w),date:new Date().toISOString().slice(0,10)};
+    saveD();toast("🏆 رقم قياسي جديد! "+w+"kg في "+nameEn,"#ffaa00");
+  }else{toast("السجل الحالي: "+existing.weight+"kg في "+fmtDate(existing.date));}
+}
+
+function saveNote(){const s=sk(activeDay);D.notes[s]=document.getElementById("session-note").value;saveD();toast("✅ تم حفظ الملاحظة","#00d68f");}
+
+function finishSession(){
+  const p=getProgress(activeDay);
+  toast(`✅ جلسة ${D.schedule[activeDay].label} مكتملة — ${p.pct}% (${p.done}/${p.total} سيت)`,p.pct===100?"#00d68f":undefined);
+  if(p.pct===100){document.getElementById("session-header").style.boxShadow="0 0 30px rgba(0,214,143,.3)";}
+}
+
+// ── EXERCISE EDIT ──────────────────────
+function openEditEx(dk,idx){
+  const ex=D.schedule[dk].exercises[idx];
+  document.getElementById("modal-ex-title").textContent=ex.nameEn;
+  document.getElementById("edit-dk").value=dk;document.getElementById("edit-idx").value=idx;
+  document.getElementById("e-name-en").value=ex.nameEn;document.getElementById("e-name-ar").value=ex.nameAr;
+  document.getElementById("e-sets").value=ex.sets;document.getElementById("e-reps").value=ex.reps;
+  document.getElementById("e-rest").value=ex.rest;document.getElementById("e-diff").value=ex.diff||"متوسط";
+  document.getElementById("e-muscles-p").value=(ex.musclesP||[]).join("، ");
+  document.getElementById("e-muscles-s").value=(ex.musclesS||[]).join("، ");
+  document.getElementById("e-video").value=ex.video||"";document.getElementById("e-gif").value=ex.gif||"";
+  document.getElementById("e-notes").value=ex.notes||"";
+  openModal("modal-ex");
+}
+function openAddEx(dk){
+  document.getElementById("modal-ex-title").textContent="إضافة تمرين";
+  document.getElementById("edit-dk").value=dk;document.getElementById("edit-idx").value=-1;
+  ["e-name-en","e-name-ar","e-muscles-p","e-muscles-s","e-video","e-gif","e-notes"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("e-sets").value=3;document.getElementById("e-reps").value="10–12";
+  document.getElementById("e-rest").value="90";document.getElementById("e-diff").value="متوسط";
+  openModal("modal-ex");
+}
+function saveExercise(){
+  const dk=document.getElementById("edit-dk").value,idx=parseInt(document.getElementById("edit-idx").value);
+  const ex={
+    id:idx===-1?"e"+Date.now():D.schedule[dk].exercises[idx].id,
+    nameEn:document.getElementById("e-name-en").value.trim()||"Exercise",
+    nameAr:document.getElementById("e-name-ar").value.trim()||"",
+    sets:parseInt(document.getElementById("e-sets").value)||3,
+    reps:document.getElementById("e-reps").value.trim()||"10",
+    rest:document.getElementById("e-rest").value.trim()||"90",
+    diff:document.getElementById("e-diff").value,
+    musclesP:document.getElementById("e-muscles-p").value.split(/[,،]/).map(s=>s.trim()).filter(Boolean),
+    musclesS:document.getElementById("e-muscles-s").value.split(/[,،]/).map(s=>s.trim()).filter(Boolean),
+    video:document.getElementById("e-video").value.trim(),
+    gif:document.getElementById("e-gif").value.trim(),
+    notes:document.getElementById("e-notes").value.trim(),
+  };
+  if(idx===-1)D.schedule[dk].exercises.push(ex);else D.schedule[dk].exercises[idx]=ex;
+  saveD();closeModal("modal-ex");openExId=null;renderExercises();renderSessionHeader();
+  toast(idx===-1?"✅ تمت الإضافة":"✅ تم الحفظ","#00d68f");
+}
+function deleteEx(dk,idx){
+  if(!confirm("حذف هذا التمرين؟"))return;
+  D.schedule[dk].exercises.splice(idx,1);saveD();openExId=null;renderExercises();renderSessionHeader();toast("🗑 تم الحذف");
+}
+
+// ── LIBRARY ────────────────────────────
+function renderLibrary(){
+  const cats=["كل",...new Set(Object.values(LIBRARY).map(e=>e.cat))];
+  const fb=document.getElementById("lib-filters");fb.innerHTML="";
+  cats.forEach(c=>{const b=document.createElement("button");b.className="filter-btn"+(c===libFilterCat?" active":"");b.textContent=c;b.onclick=()=>{libFilterCat=c;renderLibrary();};fb.appendChild(b);});
+  const search=document.getElementById("lib-search").value.toLowerCase();
+  const grid=document.getElementById("lib-grid");grid.innerHTML="";
+  const all=Object.entries(LIBRARY).filter(([k,e])=>{
+    const matchCat=libFilterCat==="كل"||e.cat===libFilterCat;
+    const matchSearch=!search||e.nameEn.toLowerCase().includes(search)||e.nameAr.includes(search)||e.muscle.includes(search);
+    return matchCat&&matchSearch;
+  });
+  if(!all.length){grid.innerHTML='<div class="empty-state"><div class="e-icon">🔍</div><div class="e-title">لا توجد نتائج</div></div>';return;}
+  all.forEach(([key,ex])=>{
+    const diffColor=ex.diff==="مبتدئ"?"var(--green)":ex.diff==="متقدم"?"var(--red)":"var(--yellow)";
+    const card=document.createElement("div");card.className="lib-card";
+    card.innerHTML=`<div class="lib-card-img" style="background:linear-gradient(135deg,var(--s2),var(--s3))"><span style="font-size:52px">${ex.icon||getExEmoji(ex.nameEn)}</span><span class="ex-chip" style="position:absolute;top:8px;right:8px;color:${diffColor};border-color:${diffColor}44;background:var(--s1)">${ex.diff}</span></div>
+    <div class="lib-card-body"><div class="lib-card-name">${ex.nameEn}</div><div class="lib-card-ar">${ex.nameAr}</div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap">${(ex.musclesP||[]).slice(0,2).map(m=>`<span class="ex-chip ex-muscle-chip">${m}</span>`).join("")}</div></div>`;
+    card.onclick=()=>openLibModal(key,ex);grid.appendChild(card);
+  });
+}
+function openLibModal(key,ex){
+  currentLibEx={key,ex};
+  document.getElementById("lib-modal-icon").textContent=ex.icon||getExEmoji(ex.nameEn);
+  document.getElementById("lib-modal-title").textContent=ex.nameEn;
+  const embed=embedUrl(ex.video);
+  document.getElementById("lib-modal-body").innerHTML=`
+    <div style="font-size:14px;color:var(--muted2);margin-bottom:12px">${ex.nameAr}</div>
+    ${embed?`<div class="video-wrap">${`<iframe src="${embed}" allowfullscreen loading="lazy"></iframe>`}</div>`:`<a class="yt-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.nameEn+' tutorial')}" target="_blank">🎬 شاهد على YouTube</a>`}
+    <div class="muscle-tags" style="margin-top:12px">
+      ${(ex.musclesP||[]).map(m=>`<span class="muscle-tag muscle-primary">🎯 ${m}</span>`).join("")}
+      ${(ex.musclesS||[]).map(m=>`<span class="muscle-tag muscle-secondary">➕ ${m}</span>`).join("")}
+    </div>
+    ${ex.notes?`<div style="margin-top:12px;background:rgba(0,180,216,.06);border:1px solid rgba(0,180,216,.15);border-radius:10px;padding:12px;font-size:13px;color:var(--blue)">💡 ${ex.notes}</div>`:""}`;
+  document.getElementById("lib-add-btn").onclick=()=>{closeModal("modal-lib");openLibAdd(key,ex);};
+  openModal("modal-lib");
+}
+function openLibAdd(key,ex){
+  document.getElementById("lib-add-ex-key").value=key;
+  const sel=document.getElementById("lib-day-select");sel.innerHTML="";
+  D.dayOrder.forEach(dk=>{const d=D.schedule[dk];if(!d)return;const o=document.createElement("option");o.value=dk;o.textContent=d.label+" — "+d.focus;sel.appendChild(o);});
+  openModal("modal-lib-add");
+}
+function confirmLibAdd(){
+  const key=document.getElementById("lib-add-ex-key").value,dk=document.getElementById("lib-day-select").value;
+  const ex=LIBRARY[key];if(!ex||!dk)return;
+  const newEx={id:"e"+Date.now(),nameEn:ex.nameEn,nameAr:ex.nameAr,sets:parseInt(document.getElementById("lib-sets").value)||3,
+    reps:document.getElementById("lib-reps").value,rest:document.getElementById("lib-rest").value,
+    musclesP:ex.musclesP,musclesS:ex.musclesS,video:ex.video,gif:ex.gif||"",notes:ex.notes||"",diff:ex.diff||"متوسط"};
+  D.schedule[dk].exercises.push(newEx);saveD();closeModal("modal-lib-add");
+  toast(`✅ تمت إضافة ${ex.nameEn} إلى ${D.schedule[dk].label}`,"#00d68f");
+}
+
+// ── PROGRESS ───────────────────────────
+function renderProgress(){
+  const sessions=D.dayOrder.map(dk=>({dk,...getProgress(dk,weekOff)}));
+  const td=sessions.reduce((s,d)=>s+d.done,0),tt=sessions.reduce((s,d)=>s+d.total,0);
+  const pct=tt?Math.round(td/tt*100):0;
+  document.getElementById("prog-pct").textContent=pct+"%";
+  document.getElementById("prog-bar").style.width=pct+"%";
+  document.getElementById("prog-sub").textContent=`${td} من ${tt} سيت مكتمل`;
+  document.getElementById("week-label").textContent=weekOff===0?"هذا الأسبوع":`أسبوع ${getWeekKey(weekOff)}`;
+  document.getElementById("btn-next").disabled=weekOff===0;document.getElementById("btn-next").style.opacity=weekOff===0?".3":"1";
+  const dcard=document.getElementById("prog-days-card");dcard.innerHTML="<div style='font-size:13px;color:var(--muted2);font-weight:700;margin-bottom:12px'>📅 أيام الأسبوع</div>";
+  sessions.forEach(({dk,done,total,pct:p})=>{const d=D.schedule[dk];if(!d)return;
+    dcard.innerHTML+=`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="font-weight:800;color:${d.color}">${d.label}</span><span style="color:var(--muted)">${done}/${total}</span></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:${d.color}"></div></div></div>`;});
+  // Weight progress per exercise
+  const wlist=document.getElementById("weight-progress-list");wlist.innerHTML="";
+  D.dayOrder.forEach(dk=>{
+    const d=D.schedule[dk];if(!d)return;
+    const w=D.weights[sk(dk,weekOff)]||{};const hasW=Object.keys(w).length>0;
+    wlist.innerHTML+=`<div class="card" style="margin-bottom:12px;border-color:${d.color}22">
+      <div style="font-size:16px;font-weight:800;color:${d.color};margin-bottom:12px">${d.label} — ${d.focus}</div>
+      ${hasW?d.exercises.filter(ex=>w[ex.id]).map(ex=>`<div class="pr-row"><div><div style="font-size:14px;font-weight:700">${ex.nameEn}</div><div style="font-size:11px;color:var(--muted)">${ex.nameAr}</div></div>
+      <div style="font-size:16px;font-weight:800;color:${d.color}">${w[ex.id]}kg</div></div>`).join("")
+      :`<div style="font-size:13px;color:var(--muted)">لا يوجد تسجيل أوزان لهذا الأسبوع</div>`}
+    </div>`;
+  });
+}
+function changeWeek(dir){weekOff=Math.min(0,weekOff+dir);renderProgress();}
+
+// ── HISTORY ────────────────────────────
+function renderHistory(){
+  const list=document.getElementById("history-list");
+  const keys=Object.keys(D.logs).sort((a,b)=>b.localeCompare(a));
+  if(!keys.length){list.innerHTML='<div class="empty-state"><div class="e-icon">📋</div><div class="e-title">لا توجد جلسات بعد</div><div>ابدأ تمرينك الأول!</div></div>';return;}
+  list.innerHTML=keys.map(key=>{
+    const [wk,...rest]=key.split("_"),dk=rest.join("_"),d=D.schedule[dk];if(!d)return"";
+    const log=D.logs[key];let done=0,total=0;
+    d.exercises.forEach(ex=>{for(let i=0;i<ex.sets;i++){total++;if(log[ex.id]?.[i])done++;}});
+    const pct=total?Math.round(done/total*100):0;
+    const note=D.notes[key]||"";const w=D.weights[key]||{};
+    const chips=d.exercises.filter(ex=>w[ex.id]).map(ex=>`<span class="ex-chip" style="color:${d.color};border-color:${d.color}44">${ex.nameEn.split(" ")[0]}: ${w[ex.id]}kg</span>`).join("");
+    return `<div class="card" style="border-color:${d.color}22;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${chips||note?12:0}px">
+        <div><div style="font-size:15px;font-weight:800;color:${d.color}">${d.label}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.focus} · أسبوع ${wk}</div></div>
+        <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${pct===100?'var(--green)':d.color}">${pct}%</div>
+        <div style="font-size:11px;color:var(--muted)">${done}/${total}</div></div>
+      </div>
+      ${chips?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:${note?10:0}px">${chips}</div>`:""}
+      ${note?`<div style="background:var(--s2);border-right:3px solid ${d.color};border-radius:8px;padding:8px 12px;font-size:13px;color:var(--muted2)">${note}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+// ── BODY WEIGHT ────────────────────────
+function addBW(){const v=document.getElementById("bw-val").value;if(!v||isNaN(v))return;D.bodyWeight.push({date:new Date().toISOString().slice(0,10),weight:parseFloat(v)});saveD();document.getElementById("bw-val").value="";renderBody();toast("✅ تم تسجيل الوزن","#00d68f");}
+function addMeasurements(){
+  const m={date:new Date().toISOString().slice(0,10),chest:parseFloat(document.getElementById("m-chest").value)||null,waist:parseFloat(document.getElementById("m-waist").value)||null,arm:parseFloat(document.getElementById("m-arm").value)||null,thigh:parseFloat(document.getElementById("m-thigh").value)||null};
+  if(!m.chest&&!m.waist&&!m.arm&&!m.thigh)return;
+  D.measurements.push(m);saveD();toast("✅ تم حفظ القياسات","#00d68f");
+}
+function renderBody(){
+  const bw=D.bodyWeight||[];
+  const stats=document.getElementById("bw-stats-card");
+  if(bw.length>=2){
+    const diff=(bw[bw.length-1].weight-bw[0].weight).toFixed(1);
+    stats.innerHTML=`<div style="font-size:13px;color:var(--muted2);font-weight:700;margin-bottom:12px">📊 ملخص</div>
+    <div class="grid3" style="gap:8px">
+      ${[["البداية",bw[0].weight+"kg","var(--muted2)"],["الحالي",bw[bw.length-1].weight+"kg","var(--blue)"],["الفرق",(diff>0?"+":"")+diff+"kg",diff<0?"var(--green)":diff>0?"var(--red)":"var(--muted)"]].map(([l,v,c])=>`
+      <div style="background:var(--s2);border-radius:10px;padding:10px;text-align:center"><div style="font-size:11px;color:var(--muted)">${l}</div>
+      <div style="font-size:18px;font-weight:900;color:${c};margin-top:3px">${v}</div></div>`).join("")}
+    </div>`;
+  }else{stats.innerHTML='<div class="empty-state" style="padding:20px"><div class="e-icon">📈</div><div class="e-title">سجّل قراءتين على الأقل</div></div>';}
+  // Chart
+  drawBWChart();
+  // List
+  const bl=document.getElementById("bw-list");
+  if(!bw.length){bl.innerHTML='<div class="empty-state"><div class="e-icon">⚖️</div><div class="e-title">سجّل وزنك لمتابعة تقدمك</div></div>';return;}
+  bl.innerHTML=[...bw].reverse().map((e,i,arr)=>{
+    const prev=arr[i+1];const diff=prev?(e.weight-prev.weight).toFixed(1):null;
+    return`<div class="bw-entry"><div><div style="font-size:14px;font-weight:700">${e.weight} كجم</div><div style="font-size:11px;color:var(--muted)">${fmtDate(e.date)}</div></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      ${diff!==null?`<span style="font-size:13px;font-weight:700;color:${diff<0?'var(--green)':diff>0?'var(--red)':'var(--muted)'}">${diff>0?"+":""}${diff}kg</span>`:""}
+      <button onclick="deleteBW(${bw.length-1-i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+    </div></div>`;}).join("");
+}
+function deleteBW(idx){D.bodyWeight.splice(idx,1);saveD();renderBody();}
+function drawBWChart(){
+  const canvas=document.getElementById("bw-chart");if(!canvas)return;
+  const bw=D.bodyWeight||[];if(bw.length<2){canvas.style.display="none";return;}
+  canvas.style.display="block";
+  const ctx=canvas.getContext("2d");canvas.width=canvas.offsetWidth||600;canvas.height=180;
+  const W=canvas.width,H=canvas.height,pad=40;
+  ctx.clearRect(0,0,W,H);
+  const vals=bw.map(e=>e.weight);const mn=Math.min(...vals)-2,mx=Math.max(...vals)+2;
+  const xS=(W-pad*2)/(bw.length-1),yS=(H-pad*2)/(mx-mn);
+  const px=i=>pad+i*xS,py=v=>H-pad-(v-mn)*yS;
+  // Grid
+  ctx.strokeStyle="#1e1e2a";ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad+(H-pad*2)*i/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  // Gradient fill
+  const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,"rgba(255,69,0,.3)");grad.addColorStop(1,"rgba(255,69,0,0)");
+  ctx.beginPath();ctx.moveTo(px(0),py(vals[0]));
+  bw.forEach((_,i)=>{if(i>0)ctx.lineTo(px(i),py(vals[i]));});
+  ctx.lineTo(px(bw.length-1),H-pad);ctx.lineTo(px(0),H-pad);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  // Line
+  ctx.beginPath();ctx.moveTo(px(0),py(vals[0]));
+  bw.forEach((_,i)=>{if(i>0)ctx.lineTo(px(i),py(vals[i]));});
+  ctx.strokeStyle="#ff4500";ctx.lineWidth=2.5;ctx.lineJoin="round";ctx.stroke();
+  // Dots + labels
+  bw.forEach((e,i)=>{
+    ctx.beginPath();ctx.arc(px(i),py(vals[i]),4,0,Math.PI*2);ctx.fillStyle="#ff4500";ctx.fill();
+    ctx.strokeStyle="#050507";ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle="#888";ctx.font="10px Cairo";ctx.textAlign="center";
+    if(i===0||i===bw.length-1||i%Math.ceil(bw.length/6)===0){ctx.fillStyle="#f0ede8";ctx.fillText(e.weight+"kg",px(i),py(vals[i])-10);}
+  });
+}
+
+// ── RECORDS ────────────────────────────
+function renderRecords(){
+  const sel=document.getElementById("pr-ex-select");sel.innerHTML="";
+  D.dayOrder.forEach(dk=>{const d=D.schedule[dk];if(!d)return;d.exercises.forEach(ex=>{const o=document.createElement("option");o.value=ex.id+"_"+dk;o.textContent=ex.nameEn;sel.appendChild(o);});});
+  const list=document.getElementById("pr-list");
+  const prs=Object.entries(D.prs);
+  if(!prs.length){list.innerHTML='<div class="empty-state"><div class="e-icon">🏆</div><div class="e-title">لا توجد أرقام قياسية بعد</div><div>سجّل أوزانك واضغط "تحقق PR" في صفحة التمرين</div></div>';return;}
+  list.innerHTML=`<div class="card"><div class="section-title">🏆 أرقام قياسية</div>`+
+  prs.sort((a,b)=>b[1].weight-a[1].weight).map(([exId,pr])=>`
+    <div class="pr-row">
+      <div><div style="font-size:15px;font-weight:800">${pr.nameEn}</div><div style="font-size:12px;color:var(--muted)">${fmtDate(pr.date)}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--yellow)">${pr.weight}kg</div>
+        <div class="pr-badge">PR</div>
+        <button onclick="deletePR('${exId}')" style="background:none;border:none;color:var(--muted);cursor:pointer">✕</button>
+      </div>
+    </div>`).join("")+"</div>";
+}
+function addPR(){
+  const sel=document.getElementById("pr-ex-select").value;if(!sel)return;
+  const [exId,dk]=sel.split("_"),ex=D.schedule[dk]?.exercises.find(e=>e.id===exId);if(!ex)return;
+  const w=parseFloat(document.getElementById("pr-weight").value);if(!w)return;
+  D.prs[exId]={nameEn:ex.nameEn,weight:w,date:new Date().toISOString().slice(0,10)};
+  saveD();renderRecords();toast("🏆 تم إضافة الرقم القياسي!","#ffaa00");
+}
+function deletePR(id){delete D.prs[id];saveD();renderRecords();toast("🗑 تم الحذف");}
+
+// ── MANAGE ─────────────────────────────
+function renderManage(){
+  const ml=document.getElementById("manage-list");ml.innerHTML="";
+  D.dayOrder.forEach(dk=>{
+    const d=D.schedule[dk];if(!d)return;
+    const sec=document.createElement("div");sec.className="card";sec.style.marginBottom="14px";
+    sec.innerHTML=`<div class="manage-day-header">
+      <div style="display:flex;align-items:center;gap:8px"><div class="color-dot" style="background:${d.color}"></div>
+      <div><div style="font-size:16px;font-weight:800">${d.label}</div><div style="font-size:12px;color:var(--muted2)">${d.focus}</div></div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="openEditDay('${dk}')">✏️ تعديل</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDay('${dk}')">🗑</button>
+      </div>
+    </div>
+    <div style="margin-bottom:8px">
+      ${d.exercises.map((ex,idx)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s2);border-radius:9px;margin-bottom:6px">
+        <span style="font-size:16px">${getExEmoji(ex.nameEn)}</span>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ex.nameEn}</div>
+        <div style="font-size:11px;color:var(--muted)">${ex.sets}×${ex.reps}</div></div>
+        <button class="btn btn-ghost btn-xs" onclick="openEditEx('${dk}',${idx})">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteEx('${dk}',${idx});renderManage()">🗑</button>
+      </div>`).join("")}
+    </div>
+    <button class="add-ex-btn" onclick="openAddEx('${dk}')">+ إضافة تمرين</button>`;
+    ml.appendChild(sec);
+  });
+}
+function openAddDay(){["nd-label","nd-key","nd-focus"].forEach(id=>document.getElementById(id).value="");openModal("modal-day");}
+function saveNewDay(){
+  const label=document.getElementById("nd-label").value.trim(),key=document.getElementById("nd-key").value.trim().replace(/\s/g,"_").toLowerCase();
+  const focus=document.getElementById("nd-focus").value.trim(),color=document.getElementById("nd-color").value;
+  if(!label||!key){toast("⚠️ أدخل الاسم والمعرّف");return;}
+  if(D.schedule[key]){toast("⚠️ هذا المعرّف موجود");return;}
+  D.schedule[key]={label,focus,color,exercises:[]};D.dayOrder.push(key);saveD();
+  closeModal("modal-day");renderManage();rebuildDaySelector();toast("✅ تمت إضافة اليوم","#00d68f");
+}
+function openEditDay(dk){
+  const d=D.schedule[dk];document.getElementById("eday-key").value=dk;
+  document.getElementById("eday-label").value=d.label;document.getElementById("eday-focus").value=d.focus;document.getElementById("eday-color").value=d.color;openModal("modal-edit-day");
+}
+function saveEditDay(){
+  const dk=document.getElementById("eday-key").value;
+  D.schedule[dk].label=document.getElementById("eday-label").value.trim();
+  D.schedule[dk].focus=document.getElementById("eday-focus").value.trim();
+  D.schedule[dk].color=document.getElementById("eday-color").value;
+  saveD();closeModal("modal-edit-day");renderManage();rebuildDaySelector();if(activeDay===dk){renderSessionHeader();renderExercises();}toast("✅ تم الحفظ","#00d68f");
+}
+function deleteDay(dk){
+  if(!confirm(`حذف يوم "${D.schedule[dk].label}" وجميع تمارينه؟`))return;
+  delete D.schedule[dk];D.dayOrder=D.dayOrder.filter(k=>k!==dk);
+  if(activeDay===dk)activeDay=D.dayOrder[0]||"";saveD();renderManage();rebuildDaySelector();toast("🗑 تم حذف اليوم");
+}
+function rebuildDaySelector(){renderDaySelector();}
+
+// ── DATA EXPORT/IMPORT ─────────────────
+function exportData(){
+  const blob=new Blob([JSON.stringify(D,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ironforge-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("📤 تم تصدير البيانات","#00b4d8");
+}
+function importData(){document.getElementById("import-file").click();}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();reader.onload=ev=>{try{D=JSON.parse(ev.target.result);saveD();location.reload();}catch{toast("⚠️ ملف غير صالح");}};reader.readAsText(file);
+}
+function clearAll(){if(!confirm("⚠️ سيتم حذف جميع بياناتك نهائياً. هل أنت متأكد؟"))return;localStorage.removeItem("IF_v3");location.reload();}
+
+// Close modals on overlay click
+document.querySelectorAll(".modal-overlay").forEach(el=>el.addEventListener("click",e=>{if(e.target===el)el.classList.remove("open");}));
+
+// ── INIT ───────────────────────────────
+renderDashboard();
+</script>
+</body>
+</html>

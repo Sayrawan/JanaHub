@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مفكرتي ١٤٤٨ هـ</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;500;600;700;900&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #B8860B;
+    --gold-light: #D4A017;
+    --gold-pale: #F5E6C8;
+    --gold-shimmer: #FFD700;
+    --beige: #F9F3E8;
+    --beige-dark: #EDE0C8;
+    --beige-mid: #F2E8D5;
+    --green: #7BAE7F;
+    --green-light: #A8D5A2;
+    --green-pale: #E8F5E9;
+    --green-dark: #4A7C59;
+    --brown: #5D4037;
+    --brown-light: #8D6E63;
+    --text-dark: #2C1810;
+    --text-mid: #5D4037;
+    --text-light: #8D6E63;
+    --white: #FFFDF8;
+    --shadow: rgba(184,134,11,0.15);
+    --shadow-deep: rgba(44,24,16,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--beige);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ═══════════════════════════════════════
+     SPLASH / COVER
+  ═══════════════════════════════════════ */
+  #splash {
+    position: fixed; inset: 0; z-index: 1000;
+    background: linear-gradient(135deg, #1a0f00 0%, #2C1810 40%, #1a2a1a 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  #splash.hidden { opacity: 0; transform: scale(1.05); pointer-events: none; }
+
+  .splash-ornament {
+    font-size: 3rem; color: var(--gold-shimmer);
+    margin-bottom: 1rem; animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+  .splash-title {
+    font-family: 'Scheherazade New', serif;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    color: var(--gold-shimmer);
+    line-height: 1.2;
+    text-shadow: 0 0 40px rgba(255,215,0,0.4);
+    margin-bottom: 0.5rem;
+  }
+  .splash-sub {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: var(--gold-pale);
+    margin-bottom: 2rem; opacity: 0.85;
+  }
+  .splash-ayah {
+    font-family: 'Scheherazade New', serif;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--green-light);
+    max-width: 500px;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(123,174,127,0.3);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    background: rgba(123,174,127,0.08);
+  }
+  .splash-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--text-dark);
+    border: none; border-radius: 50px;
+    padding: 0.9rem 3rem;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.1rem; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.05em;
+    box-shadow: 0 4px 20px rgba(212,160,23,0.4);
+    transition: all 0.3s;
+  }
+  .splash-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,160,23,0.5); }
+
+  /* ═══════════════════════════════════════
+     APP SHELL
+  ═══════════════════════════════════════ */
+  #app { display: none; min-height: 100vh; }
+  #app.visible { display: flex; flex-direction: column; }
+
+  /* TOPBAR */
+  #topbar {
+    background: linear-gradient(135deg, #2C1810, #1a2a1a);
+    padding: 0.8rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 20px var(--shadow-deep);
+  }
+  .topbar-title {
+    font-family: 'Scheherazade New', serif;
+    font-size: 1.4rem; color: var(--gold-shimmer);
+    letter-spacing: 0.02em;
+  }
+  .topbar-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .nav-btn {
+    background: transparent; border: 1px solid rgba(212,160,23,0.3);
+    color: var(--gold-pale); padding: 0.35rem 0.8rem;
+    border-radius: 20px; font-family: 'Cairo', sans-serif;
+    font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--gold); color: var(--text-dark); border-color: var(--gold);
+  }
+
+  /* ═══════════════════════════════════════
+     VIEWS
+  ═══════════════════════════════════════ */
+  .view { display: none; padding: 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .view.active { display: block; }
+
+  /* SECTION CARD */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(184,134,11,0.1);
+  }
+  .card-title {
+    font-family: 'Scheherazade New', serif;
+    font-size: 1.4rem; color: var(--gold);
+    border-bottom: 2px solid var(--gold-pale);
+    padding-bottom: 0.6rem; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  /* ═══════════════════════════════════════
+     VIEW: HOME (Dashboard)
+  ═══════════════════════════════════════ */
+  #view-home .hero-date {
+    background: linear-gradient(135deg, #2C1810, #1a2a1a);
+    border-radius: 20px; padding: 2rem;
+    text-align: center; margin-bottom: 1.5rem;
+    position: relative; overflow: hidden;
+  }
+  #view-home .hero-date::before {
+    content: '☽'; position: absolute; top: -20px; left: -10px;
+    font-size: 8rem; opacity: 0.04; color: white;
+  }
+  .hero-hijri {
+    font-family: 'Scheherazade New', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: var(--gold-shimmer); line-height: 1.1;
+  }
+  .hero-gregorian { color: var(--gold-pale); font-size: 0.9rem; margin-top: 0.3rem; opacity: 0.8; }
+  .hero-day-name { color: var(--green-light); font-size: 1.1rem; margin-top: 0.3rem; font-weight: 600; }
+
+  .quick-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 1.5rem;
+  }
+  .quick-card {
+    background: var(--white); border-radius: 14px;
+    padding: 1.2rem; text-align: center;
+    border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 12px var(--shadow);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .quick-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px var(--shadow); border-color: var(--gold-light); }
+  .quick-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .quick-card .label { color: var(--text-mid); font-size: 0.9rem; font-weight: 600; }
+
+  /* Spiritual box */
+  #spiritual-box {
+    background: linear-gradient(135deg, var(--green-pale), #f0faf0);
+    border: 1px solid var(--green-light);
+    border-right: 4px solid var(--green-dark);
+    border-radius: 14px; padding: 1.5rem;
+    margin-bottom: 1.5rem; position: relative;
+  }
+  #spiritual-box .spirit-label {
+    font-size: 0.75rem; color: var(--green-dark);
+    font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.7rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  #spiritual-box .spirit-text {
+    font-family: 'Scheherazade New', serif;
+    font-size: 1.4rem; line-height: 1.9;
+    color: var(--text-dark);
+  }
+  #spiritual-box .spirit-source {
+    margin-top: 0.7rem; color: var(--green-dark);
+    font-size: 0.82rem; font-style: italic; font-weight: 500;
+  }
+  #spiritual-box .refresh-spirit {
+    position: absolute; top: 1rem; left: 1rem;
+    background: var(--green-pale); border: 1px solid var(--green-light);
+    border-radius: 50%; width: 32px; height: 32px;
+    cursor: pointer; font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  #spiritual-box .refresh-spirit:hover { background: var(--green-light); transform: rotate(180deg); }
+  .spirit-loading { color: var(--green-dark); font-size: 0.9rem; font-style: italic; }
+
+  /* ═══════════════════════════════════════
+     VIEW: DAILY JOURNAL
+  ═══════════════════════════════════════ */
+  .day-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--white); border-radius: 14px;
+    padding: 0.8rem 1.2rem; margin-bottom: 1.2rem;
+    box-shadow: 0 2px 12px var(--shadow);
+    border: 1px solid var(--beige-dark);
+  }
+  .day-nav-btn {
+    background: var(--gold-pale); border: 1px solid var(--gold-light);
+    border-radius: 10px; padding: 0.4rem 1rem;
+    cursor: pointer; font-family: 'Cairo', sans-serif;
+    font-size: 0.85rem; color: var(--brown);
+    transition: all 0.2s;
+  }
+  .day-nav-btn:hover { background: var(--gold); color: white; }
+  .day-date-display { text-align: center; }
+  .day-date-hijri {
+    font-family: 'Scheherazade New', serif;
+    font-size: 1.5rem; color: var(--gold); line-height: 1.2;
+  }
+  .day-date-greg { font-size: 0.8rem; color: var(--text-light); margin-top: 0.2rem; }
+  .day-date-name { font-size: 0.85rem; color: var(--green-dark); font-weight: 600; }
+
+  /* Journal sections */
+  .journal-section { margin-bottom: 1.2rem; }
+  .journal-label {
+    font-size: 0.8rem; font-weight: 700; color: var(--gold);
+    letter-spacing: 0.08em; margin-bottom: 0.4rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .journal-textarea {
+    width: 100%; border: 1.5px solid var(--beige-dark);
+    border-radius: 10px; padding: 0.8rem;
+    font-family: 'Cairo', sans-serif; font-size: 0.9rem;
+    color: var(--text-dark); background: var(--beige);
+    resize: vertical; min-height: 80px;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+  .journal-textarea:focus { outline: none; border-color: var(--gold-light); background: var(--white); }
+
+  .mood-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .mood-btn {
+    background: var(--beige); border: 1.5px solid var(--beige-dark);
+    border-radius: 30px; padding: 0.4rem 0.9rem;
+    font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
+  }
+  .mood-btn:hover, .mood-btn.selected { background: var(--gold-pale); border-color: var(--gold); transform: scale(1.1); }
+
+  .habit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
+  .habit-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--beige); border: 1.5px solid var(--beige-dark);
+    border-radius: 10px; padding: 0.5rem 0.7rem;
+    cursor: pointer; transition: all 0.2s; font-size: 0.82rem;
+    color: var(--text-mid);
+  }
+  .habit-item.done { background: var(--green-pale); border-color: var(--green-light); color: var(--green-dark); }
+  .habit-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+  .habit-item.done .habit-check::after { content: '✓'; }
+
+  .plans-add-row { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .plans-add-row input {
+    flex: 1; border: 1.5px solid var(--beige-dark); border-radius: 10px;
+    padding: 0.6rem 0.8rem; font-family: 'Cairo', sans-serif; font-size: 0.85rem;
+    background: var(--beige); color: var(--text-dark);
+  }
+  .plans-add-row input:focus { outline: none; border-color: var(--gold-light); background: var(--white); }
+  .plans-add-row button {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)); border: none;
+    border-radius: 10px; padding: 0.6rem 1rem; font-family: 'Cairo', sans-serif;
+    font-weight: 700; font-size: 0.82rem; color: var(--text-dark); cursor: pointer; white-space: nowrap;
+  }
+  .plans-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .plan-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    background: var(--beige); border: 1.5px solid var(--beige-dark);
+    border-radius: 10px; padding: 0.55rem 0.7rem; font-size: 0.85rem; color: var(--text-mid);
+  }
+  .plan-item.done { background: var(--green-pale); border-color: var(--green-light); color: var(--green-dark); }
+  .plan-item .plan-check {
+    width: 18px; height: 18px; min-width: 18px; border-radius: 4px; border: 2px solid currentColor;
+    display: flex; align-items: center; justify-content: center; font-size: 0.7rem; cursor: pointer;
+  }
+  .plan-item.done .plan-check::after { content: '✓'; }
+  .plan-item .plan-text { flex: 1; cursor: pointer; line-height: 1.5; }
+  .plan-item.done .plan-text { text-decoration: line-through; opacity: 0.75; }
+  .plan-item .plan-del { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 0.95rem; padding: 0 0.2rem; }
+  .plans-empty { font-size: 0.8rem; color: var(--text-light); padding: 0.3rem 0.2rem; }
+
+  /* Photo section */
+    .photo-area {
+    border: 2px dashed var(--gold-light); border-radius: 12px;
+    padding: 1rem; text-align: center;
+    background: var(--gold-pale); cursor: pointer;
+    transition: all 0.2s; min-height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0.4rem; color: var(--brown-light);
+    font-size: 0.85rem;
+  }
+  .photo-area:hover { background: var(--beige-dark); border-color: var(--gold); }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem; margin-top: 0.8rem; }
+  .photo-thumb { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 2px solid var(--gold-pale); cursor: pointer; }
+  .photo-thumb:hover { border-color: var(--gold); }
+
+  /* Save btn */
+  .save-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--text-dark); border: none; border-radius: 12px;
+    padding: 0.8rem 2rem; font-family: 'Cairo', sans-serif;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 15px rgba(184,134,11,0.3);
+    width: 100%;
+  }
+  .save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,134,11,0.4); }
+  .save-toast {
+    background: var(--green-dark); color: white;
+    border-radius: 10px; padding: 0.6rem 1.2rem;
+    font-size: 0.85rem; text-align: center;
+    display: none; margin-top: 0.6rem;
+  }
+  .save-toast.show { display: block; animation: fadeInOut 2.5s ease forwards; }
+  @keyframes fadeInOut { 0%{opacity:0} 10%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+
+  /* ═══════════════════════════════════════
+     VIEW: MONTH
+  ═══════════════════════════════════════ */
+  .month-selector {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.8rem; margin-bottom: 1.5rem;
+  }
+  .month-card {
+    background: var(--white); border: 1px solid var(--beige-dark);
+    border-radius: 14px; padding: 1rem;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .month-card:hover, .month-card.active-month {
+    background: var(--gold-pale); border-color: var(--gold);
+    transform: translateY(-2px); box-shadow: 0 4px 16px var(--shadow);
+  }
+  .month-card .m-name { font-family: 'Scheherazade New', serif; font-size: 1.2rem; color: var(--gold); }
+  .month-card .m-num { font-size: 0.72rem; color: var(--text-light); margin-top: 0.2rem; }
+
+  /* Month detail */
+  #month-detail { display: none; }
+  #month-detail.shown { display: block; }
+  .month-header-card {
+    background: linear-gradient(135deg, #2C1810, #1a2a1a);
+    border-radius: 18px; padding: 2rem;
+    text-align: center; margin-bottom: 1.5rem; color: white;
+  }
+  .mh-name { font-family: 'Scheherazade New', serif; font-size: 2.5rem; color: var(--gold-shimmer); }
+  .mh-dates { color: var(--gold-pale); font-size: 0.85rem; margin-top: 0.5rem; }
+  .mh-events { margin-top: 1rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+  .event-tag {
+    background: rgba(123,174,127,0.2); border: 1px solid var(--green-light);
+    border-radius: 20px; padding: 0.3rem 0.8rem;
+    font-size: 0.78rem; color: var(--green-light);
+  }
+
+  /* Calendar grid */
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px; margin-bottom: 1.5rem;
+  }
+  .cal-header { text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--gold); padding: 0.5rem 0; }
+  .cal-day {
+    background: var(--white); border: 1px solid var(--beige-dark);
+    border-radius: 8px; padding: 0.4rem; text-align: center;
+    min-height: 60px; cursor: pointer; transition: all 0.15s;
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 0.8rem;
+  }
+  .cal-day:hover { background: var(--gold-pale); border-color: var(--gold-light); }
+  .cal-day.today { background: var(--gold-pale); border: 2px solid var(--gold); }
+  .cal-day.has-entry { position: relative; }
+  .cal-day.has-entry::after {
+    content: ''; position: absolute; bottom: 4px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+  }
+  .cal-day.special { background: var(--green-pale); border-color: var(--green-light); }
+  .cal-day .h-num { font-family: 'Scheherazade New', serif; font-size: 1rem; color: var(--gold); }
+  .cal-day .g-num { font-size: 0.65rem; color: var(--text-light); margin-top: 0.1rem; }
+  .cal-day .day-mood { font-size: 0.8rem; margin-top: 0.2rem; }
+  .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+
+  /* Month goals */
+  .goals-textarea {
+    width: 100%; border: 1.5px solid var(--beige-dark);
+    border-radius: 10px; padding: 0.8rem;
+    font-family: 'Cairo', sans-serif; font-size: 0.9rem;
+    color: var(--text-dark); background: var(--beige);
+    min-height: 100px; resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .goals-textarea:focus { outline: none; border-color: var(--gold-light); }
+
+  /* ═══════════════════════════════════════
+     VIEW: YEARLY GOALS
+  ═══════════════════════════════════════ */
+  .goals-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .goal-category {
+    background: var(--white); border-radius: 14px;
+    padding: 1.2rem; border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .goal-cat-title {
+    font-size: 0.95rem; font-weight: 700; margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding-bottom: 0.5rem; border-bottom: 2px solid var(--beige-dark);
+  }
+  .goal-list { list-style: none; }
+  .goal-list li {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    padding: 0.4rem 0; border-bottom: 1px solid var(--beige-dark);
+    font-size: 0.85rem;
+  }
+  .goal-list li:last-child { border-bottom: none; }
+  .goal-check {
+    width: 18px; height: 18px; min-width: 18px;
+    border-radius: 4px; border: 2px solid var(--gold-light);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; margin-top: 1px; transition: all 0.2s;
+  }
+  .goal-check.done { background: var(--gold); border-color: var(--gold); color: white; }
+  .goal-text { flex: 1; }
+  .goal-text.done-text { text-decoration: line-through; opacity: 0.5; }
+  .add-goal-row { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+  .add-goal-input {
+    flex: 1; border: 1.5px solid var(--beige-dark); border-radius: 8px;
+    padding: 0.4rem 0.7rem; font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem; background: var(--beige);
+  }
+  .add-goal-input:focus { outline: none; border-color: var(--gold-light); }
+  .add-goal-btn {
+    background: var(--gold-pale); border: 1px solid var(--gold-light);
+    border-radius: 8px; padding: 0.4rem 0.8rem;
+    cursor: pointer; font-size: 0.85rem; color: var(--brown);
+    transition: all 0.2s;
+  }
+  .add-goal-btn:hover { background: var(--gold); color: white; }
+
+  /* ═══════════════════════════════════════
+     VIEW: ACHIEVEMENTS
+  ═══════════════════════════════════════ */
+  .achievement-form {
+    display: flex; gap: 0.8rem; margin-bottom: 1.2rem; flex-wrap: wrap;
+  }
+  .achievement-input {
+    flex: 1; min-width: 200px; border: 1.5px solid var(--beige-dark);
+    border-radius: 10px; padding: 0.7rem 1rem;
+    font-family: 'Cairo', sans-serif; font-size: 0.9rem;
+    background: var(--beige);
+  }
+  .achievement-input:focus { outline: none; border-color: var(--gold-light); }
+  .achievement-add-btn {
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    color: white; border: none; border-radius: 10px;
+    padding: 0.7rem 1.5rem; font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .achievement-add-btn:hover { transform: translateY(-1px); }
+
+  .achievement-list { display: grid; gap: 0.8rem; }
+  .achievement-item {
+    background: var(--white); border-radius: 14px;
+    padding: 1rem 1.2rem; display: flex;
+    align-items: flex-start; gap: 1rem;
+    border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 10px var(--shadow);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  .achievement-icon { font-size: 1.8rem; }
+  .achievement-body { flex: 1; }
+  .achievement-title { font-weight: 600; font-size: 0.95rem; color: var(--text-dark); }
+  .achievement-date { font-size: 0.75rem; color: var(--text-light); margin-top: 0.2rem; }
+  .achievement-del { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 1rem; padding: 0.2rem; }
+  .achievement-del:hover { color: #c0392b; }
+
+  /* ═══════════════════════════════════════
+     VIEW: SEARCH
+  ═══════════════════════════════════════ */
+  .search-box {
+    width: 100%; border: 2px solid var(--gold-light);
+    border-radius: 14px; padding: 0.9rem 1.2rem;
+    font-family: 'Cairo', sans-serif; font-size: 1rem;
+    background: var(--white); margin-bottom: 1.2rem;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .search-box:focus { outline: none; border-color: var(--gold); }
+  .search-results { display: grid; gap: 0.8rem; }
+  .search-result-card {
+    background: var(--white); border-radius: 14px;
+    padding: 1rem 1.2rem; border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 10px var(--shadow);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .search-result-card:hover { border-color: var(--gold-light); transform: translateX(-3px); }
+  .sr-date { font-family: 'Scheherazade New', serif; font-size: 1.1rem; color: var(--gold); }
+  .sr-preview { font-size: 0.82rem; color: var(--text-light); margin-top: 0.3rem; line-height: 1.6; }
+  .sr-tags { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  .sr-tag { background: var(--beige-dark); border-radius: 20px; padding: 0.15rem 0.6rem; font-size: 0.72rem; color: var(--text-mid); }
+
+  /* ═══════════════════════════════════════
+     PHOTO MODAL
+  ═══════════════════════════════════════ */
+  #photo-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+    z-index: 500; display: none; align-items: center; justify-content: center;
+  }
+  #photo-modal.open { display: flex; }
+  #photo-modal img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+  #photo-modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: rgba(255,255,255,0.1); border: none;
+    color: white; font-size: 1.5rem; border-radius: 50%;
+    width: 40px; height: 40px; cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════
+     HALF YEAR VIEW
+  ═══════════════════════════════════════ */
+  .half-year-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 1.5rem;
+  }
+  @media(max-width: 600px){ .half-year-grid { grid-template-columns: 1fr; } }
+  .half-card {
+    background: var(--white); border-radius: 14px;
+    padding: 1.2rem; border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .half-card-title {
+    font-family: 'Scheherazade New', serif; font-size: 1.2rem;
+    color: var(--gold); margin-bottom: 0.8rem;
+    text-align: center; border-bottom: 2px solid var(--gold-pale);
+    padding-bottom: 0.5rem;
+  }
+
+  /* ═══════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════ */
+  @media(max-width: 768px){
+    .topbar-nav { display: none; }
+    #mobile-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(135deg, #2C1810, #1a2a1a);
+      padding: 0.5rem; gap: 0.3rem; z-index: 200;
+      box-shadow: 0 -2px 20px var(--shadow-deep); justify-content: space-around;
+    }
+    .mnav-btn {
+      display: flex; flex-direction: column; align-items: center;
+      background: none; border: none; color: var(--gold-pale);
+      font-size: 0.62rem; gap: 0.2rem; padding: 0.4rem 0.6rem;
+      border-radius: 10px; cursor: pointer; min-width: 50px;
+      transition: all 0.2s;
+    }
+    .mnav-btn .mnav-icon { font-size: 1.3rem; }
+    .mnav-btn.active, .mnav-btn:hover { color: var(--gold-shimmer); background: rgba(255,215,0,0.1); }
+    body { padding-bottom: 70px; }
+    .view { padding: 1rem; }
+    .quick-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media(min-width: 769px){ #mobile-nav { display: none; } }
+
+  /* Decorative divider */
+  .ornamental-divider {
+    text-align: center; color: var(--gold-light);
+    font-size: 1.2rem; margin: 1rem 0; letter-spacing: 0.5rem;
+    opacity: 0.6;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap { background: var(--beige-dark); border-radius: 20px; height: 8px; overflow: hidden; margin-top: 0.4rem; }
+  .progress-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width 0.5s ease; }
+
+  /* No entries placeholder */
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-light);
+  }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--beige); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-light); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-ornament">☽</div>
+  <div class="splash-title">مفكرتي</div>
+  <div class="splash-sub">١٤٤٨ هـ · رحلة روحانية</div>
+  <div class="splash-ayah">
+    ﴿ وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ ﴾<br>
+    <small style="font-size:0.75rem; opacity:0.7;">الطلاق: ٢-٣</small>
+  </div>
+  <button class="splash-btn" onclick="enterApp()">ابدأ رحلتك ✨</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="topbar-title">☽ مفكرتي ١٤٤٨</div>
+    <div class="topbar-nav">
+      <button class="nav-btn active" onclick="showView('home')">🏠 الرئيسية</button>
+      <button class="nav-btn" onclick="showView('daily')">📖 يومياتي</button>
+      <button class="nav-btn" onclick="showView('monthly')">📅 الشهور</button>
+      <button class="nav-btn" onclick="showView('goals')">🎯 الأهداف</button>
+      <button class="nav-btn" onclick="showView('achievements')">🏆 الإنجازات</button>
+      <button class="nav-btn" onclick="showView('search')">🔍 البحث</button>
+    </div>
+  </div>
+
+  <!-- HOME VIEW -->
+  <div id="view-home" class="view active">
+    <div class="hero-date" id="hero-date">
+      <div class="hero-day-name" id="hero-day-name">الأحد</div>
+      <div class="hero-hijri" id="hero-hijri">١ محرم ١٤٤٨</div>
+      <div class="hero-gregorian" id="hero-gregorian">28 June 2026</div>
+    </div>
+
+    <!-- Spiritual content -->
+    <div id="spiritual-box">
+      <div class="spirit-label">✦ تأمل اليوم</div>
+      <div id="spirit-text" class="spirit-text spirit-loading">جارٍ تحميل الكلمة الروحانية...</div>
+      <div id="spirit-source" class="spirit-source"></div>
+      <button class="refresh-spirit" onclick="loadSpiritual(true)" title="تجديد">↻</button>
+    </div>
+
+    <div class="quick-grid">
+      <div class="quick-card" onclick="showView('daily')">
+        <div class="icon">📝</div>
+        <div class="label">يوميات اليوم</div>
+      </div>
+      <div class="quick-card" onclick="showView('monthly')">
+        <div class="icon">📅</div>
+        <div class="label">الشهر الحالي</div>
+      </div>
+      <div class="quick-card" onclick="showView('goals')">
+        <div class="icon">🎯</div>
+        <div class="label">أهدافي</div>
+      </div>
+      <div class="quick-card" onclick="showView('achievements')">
+        <div class="icon">🏆</div>
+        <div class="label">إنجازاتي</div>
+      </div>
+    </div>
+
+    <!-- Year progress -->
+    <div class="card">
+      <div class="card-title">📊 تقدّم العام</div>
+      <div id="year-progress-info" style="font-size:0.85rem; color:var(--text-mid); margin-bottom:0.4rem;"></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="year-progress-bar" style="width:0%"></div></div>
+      <div style="margin-top:1rem; font-size:0.82rem; color:var(--text-light);" id="entries-count"></div>
+    </div>
+
+    <!-- Upcoming events -->
+    <div class="card">
+      <div class="card-title">🌙 مناسبات قادمة</div>
+      <div id="upcoming-events"></div>
+    </div>
+  </div>
+
+  <!-- DAILY VIEW -->
+  <div id="view-daily" class="view">
+    <div class="day-nav">
+      <button class="day-nav-btn" onclick="changeDay(-1)">→ السابق</button>
+      <div class="day-date-display">
+        <div class="day-date-name" id="day-name-display"></div>
+        <div class="day-date-hijri" id="day-hijri-display"></div>
+        <div class="day-date-greg" id="day-greg-display"></div>
+      </div>
+      <button class="day-nav-btn" onclick="changeDay(1)">التالي ←</button>
+    </div>
+
+    <div class="card">
+      <!-- Mood -->
+      <div class="journal-section">
+        <div class="journal-label">💫 كيف حالك اليوم؟</div>
+        <div class="mood-row" id="mood-row">
+          <button class="mood-btn" data-mood="😊" onclick="selectMood(this)">😊</button>
+          <button class="mood-btn" data-mood="🥰" onclick="selectMood(this)">🥰</button>
+          <button class="mood-btn" data-mood="😌" onclick="selectMood(this)">😌</button>
+          <button class="mood-btn" data-mood="😔" onclick="selectMood(this)">😔</button>
+          <button class="mood-btn" data-mood="😤" onclick="selectMood(this)">😤</button>
+          <button class="mood-btn" data-mood="😴" onclick="selectMood(this)">😴</button>
+          <button class="mood-btn" data-mood="🤲" onclick="selectMood(this)">🤲</button>
+          <button class="mood-btn" data-mood="✨" onclick="selectMood(this)">✨</button>
+        </div>
+      </div>
+
+      <!-- Habits -->
+      <div class="journal-section">
+        <div class="journal-label" style="justify-content:space-between">
+          <span>🌱 عادات اليوم</span>
+          <button onclick="openHabitManager()" style="background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;padding:0.2rem 0.7rem;font-size:0.75rem;color:var(--brown);cursor:pointer;font-family:'Cairo',sans-serif;">⚙️ تعديل العادات</button>
+        </div>
+        <div class="habit-grid" id="habit-grid"></div>
+      </div>
+
+      <!-- Habit Manager Modal -->
+      <div id="habit-manager" style="display:none;position:fixed;inset:0;background:rgba(44,24,16,0.7);z-index:300;align-items:center;justify-content:center;">
+        <div style="background:var(--white);border-radius:20px;padding:1.5rem;max-width:460px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border-bottom:2px solid var(--gold-pale);padding-bottom:0.7rem;">
+            <div style="font-family:'Scheherazade New',serif;font-size:1.3rem;color:var(--gold);">⚙️ إدارة العادات</div>
+            <button onclick="closeHabitManager()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-light);">✕</button>
+          </div>
+          <div id="habit-manager-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;"></div>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="text" id="new-habit-input" placeholder="اسم العادة الجديدة..." style="flex:1;border:1.5px solid var(--beige-dark);border-radius:10px;padding:0.6rem 0.8rem;font-family:'Cairo',sans-serif;font-size:0.9rem;background:var(--beige);" onkeydown="if(event.key==='Enter') addHabit()">
+            <button onclick="addHabit()" style="background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:10px;padding:0.6rem 1.2rem;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;color:var(--text-dark);">+ أضيفي</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ornamental-divider">✦ ✦ ✦</div>
+
+      <!-- Today plans -->
+      <div class="journal-section">
+        <div class="journal-label">📋 خططي لليوم</div>
+        <div class="plans-add-row">
+          <input type="text" id="plan-input" placeholder="أضيفي مهمة أو هدف لليوم..." onkeydown="if(event.key==='Enter'){addPlanItem();}">
+          <button onclick="addPlanItem()">+ أضيفي</button>
+        </div>
+        <div class="plans-list" id="plans-list"></div>
+      </div>
+
+      <!-- Journal text -->
+      <div class="journal-section">
+        <div class="journal-label">📖 مذكراتي</div>
+        <textarea class="journal-textarea" id="journal-text" placeholder="اكتبي ما في قلبك... أفكارك، مشاعرك، يومك..." rows="5"></textarea>
+      </div>
+
+      <!-- Gratitude -->
+      <div class="journal-section">
+        <div class="journal-label">🤲 أشكر الله اليوم على...</div>
+        <textarea class="journal-textarea" id="gratitude-text" placeholder="اذكري نِعَمَ الله عليكِ اليوم..." rows="3"></textarea>
+      </div>
+
+      <!-- Lessons -->
+      <div class="journal-section">
+        <div class="journal-label">💡 تعلّمت اليوم</div>
+        <textarea class="journal-textarea" id="lessons-text" placeholder="ما الدرس أو الحكمة التي أخذتِها؟" rows="3"></textarea>
+      </div>
+
+      <div class="ornamental-divider">✦ ✦ ✦</div>
+
+      <!-- Photos -->
+      <div class="journal-section">
+        <div class="journal-label">📸 صور اليوم</div>
+        <div class="photo-area" onclick="document.getElementById('photo-input').click()">
+          <span style="font-size:1.8rem">📷</span>
+          <span>اضغطي لإضافة صورة</span>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)">
+        <div class="photo-grid" id="photo-grid"></div>
+      </div>
+
+      <!-- Save -->
+      <button class="save-btn" onclick="saveDay()">💾 حفظ يوميات اليوم</button>
+      <div class="save-toast" id="save-toast">✅ تم الحفظ بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- MONTHLY VIEW -->
+  <div id="view-monthly" class="view">
+    <div class="card">
+      <div class="card-title">🌙 شهور عام ١٤٤٨ هـ</div>
+      <div class="month-selector" id="month-selector"></div>
+    </div>
+
+    <div id="month-detail">
+      <div class="month-header-card" id="month-header-card"></div>
+
+      <!-- Calendar grid -->
+      <div class="card">
+        <div class="card-title" id="cal-grid-title">تقويم الشهر</div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <!-- Month goals -->
+      <div class="card">
+        <div class="card-title">🎯 أهداف الشهر</div>
+        <textarea class="goals-textarea" id="month-goals-text" placeholder="اكتبي أهدافك لهذا الشهر..." onchange="saveMonthGoals()"></textarea>
+        <button class="save-btn" style="margin-top:0.8rem" onclick="saveMonthGoals()">💾 حفظ أهداف الشهر</button>
+      </div>
+
+      <!-- Month reflection -->
+      <div class="card">
+        <div class="card-title">🪞 تأمّل الشهر</div>
+        <textarea class="goals-textarea" id="month-reflection-text" placeholder="في نهاية الشهر، ماذا تعكس؟ ماذا أنجزتِ وما الذي تودّين تغييره؟" onchange="saveMonthReflection()"></textarea>
+        <button class="save-btn" style="margin-top:0.8rem; background: linear-gradient(135deg, var(--green-dark), var(--green));" onclick="saveMonthReflection()">💾 حفظ التأمل</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOALS VIEW -->
+  <div id="view-goals" class="view">
+    <!-- Year goals -->
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;">
+        <span>⭐ أهداف عام ١٤٤٨</span>
+        <button onclick="openCategoryManager()" style="background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:20px;padding:0.35rem 0.9rem;font-size:0.78rem;color:var(--brown);cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;white-space:nowrap;">+ أضيفي تصنيف جديد</button>
+      </div>
+      <div class="goals-columns" id="year-goals-grid"></div>
+    </div>
+
+    <!-- Custom Category Modal -->
+    <div id="category-manager" style="display:none;position:fixed;inset:0;background:rgba(44,24,16,0.7);z-index:300;align-items:center;justify-content:center;">
+      <div style="background:var(--white);border-radius:20px;padding:1.5rem;max-width:420px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border-bottom:2px solid var(--gold-pale);padding-bottom:0.7rem;">
+          <div style="font-family:'Scheherazade New',serif;font-size:1.3rem;color:var(--gold);">⭐ تصنيف هدف جديد</div>
+          <button onclick="closeCategoryManager()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-light);">✕</button>
+        </div>
+        <div style="font-size:0.82rem;color:var(--text-light);margin-bottom:0.8rem;">مثلاً: اسم شخص معين له هدف خاص، أو أي تصنيف تحتاجينه.</div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.8rem;">
+          <input type="text" id="new-cat-emoji" placeholder="🌟" maxlength="4" style="width:60px;text-align:center;border:1.5px solid var(--beige-dark);border-radius:10px;padding:0.6rem 0.4rem;font-size:1.1rem;background:var(--beige);">
+          <input type="text" id="new-cat-name" placeholder="اسم التصنيف..." style="flex:1;border:1.5px solid var(--beige-dark);border-radius:10px;padding:0.6rem 0.8rem;font-family:'Cairo',sans-serif;font-size:0.9rem;background:var(--beige);" onkeydown="if(event.key==='Enter') addCustomCategory()">
+        </div>
+        <button onclick="addCustomCategory()" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:10px;padding:0.7rem;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;color:var(--text-dark);">+ أضيفي التصنيف</button>
+      </div>
+    </div>
+
+    <!-- Quarters -->
+    <div class="card">
+      <div class="card-title">🗓️ أهداف الأرباع السنوية</div>
+      <div id="quarters-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1rem;"></div>
+      <button class="save-btn" onclick="saveQuarterGoals()">💾 حفظ أهداف الأرباع</button>
+    </div>
+
+    <!-- Vision board text -->
+    <div class="card">
+      <div class="card-title">🔭 رؤيتي لنفسي نهاية ١٤٤٨</div>
+      <textarea class="goals-textarea" id="vision-text" style="min-height:150px" placeholder="صفي نفسك في نهاية هذا العام... من أنتِ؟ ماذا حققتِ؟ كيف تشعرين؟" onchange="saveVision()"></textarea>
+      <button class="save-btn" style="margin-top:0.8rem" onclick="saveVision()">💾 حفظ الرؤية</button>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS VIEW -->
+  <div id="view-achievements" class="view">
+    <div class="card">
+      <div class="card-title">🏆 سجّلي إنجازك</div>
+      <div class="achievement-form">
+        <select id="achievement-icon" style="border:1.5px solid var(--beige-dark);border-radius:10px;padding:0.7rem;font-size:1.2rem;background:var(--beige);cursor:pointer;">
+          <option>🏆</option><option>⭐</option><option>💎</option>
+          <option>🎯</option><option>📖</option><option>🌙</option>
+          <option>💪</option><option>🤲</option><option>✨</option>
+          <option>🌸</option><option>🎓</option><option>❤️</option>
+        </select>
+        <input type="text" class="achievement-input" id="achievement-text" placeholder="اكتبي إنجازك هنا...">
+        <button class="achievement-add-btn" onclick="addAchievement()">+ أضيفي</button>
+      </div>
+      <div class="achievement-list" id="achievement-list">
+        <div class="empty-state">
+          <div class="empty-icon">🌟</div>
+          <p>لم تُضيفي أي إنجاز بعد<br>ابدئي بتسجيل أول إنجازاتك!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH VIEW -->
+  <div id="view-search" class="view">
+    <div class="card">
+      <div class="card-title">🔍 البحث في يومياتي</div>
+      <input type="text" class="search-box" id="search-input" placeholder="ابحثي عن يوم، كلمة، أو شعور..." oninput="doSearch()" dir="rtl">
+      <div id="search-results" class="search-results">
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <p>اكتبي للبحث في يومياتك</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <div id="mobile-nav">
+    <button class="mnav-btn active" onclick="showView('home')"><span class="mnav-icon">🏠</span>رئيسية</button>
+    <button class="mnav-btn" onclick="showView('daily')"><span class="mnav-icon">📖</span>يوميات</button>
+    <button class="mnav-btn" onclick="showView('monthly')"><span class="mnav-icon">📅</span>شهور</button>
+    <button class="mnav-btn" onclick="showView('goals')"><span class="mnav-icon">🎯</span>أهداف</button>
+    <button class="mnav-btn" onclick="showView('achievements')"><span class="mnav-icon">🏆</span>إنجازات</button>
+    <button class="mnav-btn" onclick="showView('search')"><span class="mnav-icon">🔍</span>بحث</button>
+  </div>
+</div>
+
+<!-- PHOTO MODAL -->
+<div id="photo-modal">
+  <button id="photo-modal-close" onclick="closePhotoModal()">✕</button>
+  <img id="photo-modal-img" src="" alt="">
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  HIJRI CALENDAR DATA FOR 1448
+// ═══════════════════════════════════════════════════════════════
+const HIJRI_MONTHS = [
+  'محرم','صفر','ربيع الأول','ربيع الآخر',
+  'جمادى الأولى','جمادى الآخرة','رجب','شعبان',
+  'رمضان','شوال','ذو القعدة','ذو الحجة'
+];
+
+// 1448 Hijri month start dates (Gregorian) and lengths
+// محرم ١٤٤٨ = 18 June 2026
+const MONTHS_1448 = [
+  { name:'محرم',        num:1,  start:'2026-06-16', days:29 },
+  { name:'صفر',         num:2,  start:'2026-07-15', days:30 },
+  { name:'ربيع الأول',  num:3,  start:'2026-08-14', days:29 },
+  { name:'ربيع الآخر',  num:4,  start:'2026-09-12', days:30 },
+  { name:'جمادى الأولى', num:5, start:'2026-10-12', days:30 },
+  { name:'جمادى الآخرة', num:6, start:'2026-11-11', days:29 },
+  { name:'رجب',         num:7,  start:'2026-12-10', days:30 },
+  { name:'شعبان',       num:8,  start:'2027-01-09', days:29 },
+  { name:'رمضان',       num:9,  start:'2027-02-07', days:30 },
+  { name:'شوال',        num:10, start:'2027-03-09', days:29 },
+  { name:'ذو القعدة',   num:11, start:'2027-04-07', days:30 },
+  { name:'ذو الحجة',    num:12, start:'2027-05-07', days:29 }
+];
+
+// Islamic events
+const ISLAMIC_EVENTS = {
+  '1-1':  'رأس السنة الهجرية ١٤٤٨',
+  '1-10': 'عاشوراء',
+  '3-12': 'المولد النبوي الشريف',
+  '7-1':  'بداية رجب',
+  '7-27': 'ليلة الإسراء والمعراج',
+  '8-15': 'ليلة النصف من شعبان',
+  '9-1':  'بداية شهر رمضان المبارك',
+  '9-17': 'غزوة بدر الكبرى',
+  '9-21': 'بداية العشر الأواخر',
+  '9-27': 'ليلة القدر (المرجّح)',
+  '10-1': 'عيد الفطر المبارك 🎉',
+  '12-8': 'يوم التروية',
+  '12-9': 'يوم عرفة',
+  '12-10':'عيد الأضحى المبارك 🐑',
+  '12-11':'أول أيام التشريق',
+  '12-12':'ثاني أيام التشريق',
+  '12-13':'ثالث أيام التشريق'
+};
+
+const DAYS_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+
+// ═══════════════════════════════════════════════════════════════
+//  DATE UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function parseDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function dateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function addDays(date, n) {
+  const d = new Date(date); d.setDate(d.getDate()+n); return d;
+}
+function toArabicNum(n) {
+  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+function formatGregorian(date) {
+  return date.toLocaleDateString('ar-SA-u-nu-latn', {day:'numeric',month:'long',year:'numeric'});
+}
+function formatGregorianEn(date) {
+  return date.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+}
+
+function getHijriForDate(gDate) {
+  const date = new Date(gDate);
+  date.setHours(0,0,0,0);
+
+  for (let mi = 0; mi < MONTHS_1448.length; mi++) {
+    const m = MONTHS_1448[mi];
+
+    const start = parseDate(m.start);
+    start.setHours(0,0,0,0);
+
+    const end = addDays(start, m.days - 1);
+    end.setHours(0,0,0,0);
+
+    if (date >= start && date <= end) {
+      const dayNum = Math.floor((date - start) / 86400000) + 1;
+      return { month: mi+1, monthName: m.name, day: dayNum, year: 1448 };
+    }
+  }
+
+  return null;
+}
+
+function hijriKey(month, day) { return `${month}-${day}`; }
+
+
+// ═══════════════════════════════════════════════════════════════
+//  HABITS — DYNAMIC (editable list stored in localStorage)
+// ═══════════════════════════════════════════════════════════════
+const DEFAULT_HABITS = [
+  'صلاة الفجر','صلاة الظهر','صلاة العصر','صلاة المغرب','صلاة العشاء',
+  'قراءة القرآن','ورد المحفوظات','ذكر الصباح','ذكر المساء',
+  'شرب الماء','التمرين','المذاكرة'
+];
+
+function getHabitsList() {
+  return load('habits_list', DEFAULT_HABITS);
+}
+
+function renderHabitGrid(savedHabits) {
+  const list = getHabitsList();
+  const grid = document.getElementById('habit-grid');
+  grid.innerHTML = list.map(name => {
+    const done = savedHabits[name] || false;
+    return `<div class="habit-item${done?' done':''}" data-habit="${name}" onclick="toggleHabit(this)">
+      <div class="habit-check"></div>${name}
+    </div>`;
+  }).join('');
+}
+
+function toggleHabit(el) {
+  el.classList.toggle('done');
+}
+
+function openHabitManager() {
+  const list = getHabitsList();
+  const ml = document.getElementById('habit-manager-list');
+  ml.innerHTML = list.map((h, i) => `
+    <div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.7rem;background:var(--beige);border-radius:10px;border:1px solid var(--beige-dark);">
+      <span style="flex:1;font-size:0.9rem;">${h}</span>
+      <button onclick="deleteHabit(${i})" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:1rem;padding:0.1rem 0.3rem;" title="حذف">🗑</button>
+    </div>
+  `).join('');
+  document.getElementById('new-habit-input').value = '';
+  document.getElementById('habit-manager').style.display = 'flex';
+}
+
+function closeHabitManager() {
+  document.getElementById('habit-manager').style.display = 'none';
+  const currentDone = {};
+  document.querySelectorAll('.habit-item').forEach(item => {
+    currentDone[item.dataset.habit] = item.classList.contains('done');
+  });
+  renderHabitGrid(currentDone);
+}
+
+function addHabit() {
+  const input = document.getElementById('new-habit-input');
+  const name = input.value.trim();
+  if (!name) return;
+  const list = getHabitsList();
+  if (list.includes(name)) { input.value = ''; return; }
+  list.push(name);
+  save('habits_list', list);
+  input.value = '';
+  openHabitManager();
+}
+
+function deleteHabit(idx) {
+  const list = getHabitsList();
+  list.splice(idx, 1);
+  save('habits_list', list);
+  openHabitManager();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PLANS CHECKLIST ("خططي لليوم")
+// ═══════════════════════════════════════════════════════════════
+function renderPlansList() {
+  const list = document.getElementById('plans-list');
+  if (!currentDayPlans.length) {
+    list.innerHTML = `<div class="plans-empty">لم تُضيفي أي مهمة لهذا اليوم بعد</div>`;
+    return;
+  }
+  list.innerHTML = currentDayPlans.map((item, i) => `
+    <div class="plan-item${item.done ? ' done' : ''}">
+      <div class="plan-check" onclick="togglePlanItem(${i})"></div>
+      <span class="plan-text" onclick="togglePlanItem(${i})">${item.text}</span>
+      <button class="plan-del" onclick="deletePlanItem(${i})" title="حذف">🗑</button>
+    </div>
+  `).join('');
+}
+
+function addPlanItem() {
+  const input = document.getElementById('plan-input');
+  const text = input.value.trim();
+  if (!text) return;
+  currentDayPlans.push({ text, done: false });
+  input.value = '';
+  renderPlansList();
+}
+
+function togglePlanItem(idx) {
+  currentDayPlans[idx].done = !currentDayPlans[idx].done;
+  renderPlansList();
+}
+
+function deletePlanItem(idx) {
+  currentDayPlans.splice(idx, 1);
+  renderPlansList();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let currentDayDate = new Date();
+// Clamp to 1448 range
+const Y1448_START = parseDate(MONTHS_1448[0].start);
+const Y1448_END = addDays(parseDate(MONTHS_1448[11].start), MONTHS_1448[11].days - 1);
+if (currentDayDate < Y1448_START) currentDayDate = new Date(Y1448_START);
+if (currentDayDate > Y1448_END) currentDayDate = new Date(Y1448_END);
+
+let currentMonthIdx = 0;
+let selectedMood = '';
+let currentDayPhotos = [];
+let currentDayPlans = [];
+
+// ═══════════════════════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════════════════════
+function save(key, val) {
+  try { localStorage.setItem('journal1448_'+key, JSON.stringify(val)); } catch(e){}
+}
+function load(key, def) {
+  try {
+    const v = localStorage.getItem('journal1448_'+key);
+    return v !== null ? JSON.parse(v) : def;
+  } catch(e) { return def; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPLASH & APP INIT
+// ═══════════════════════════════════════════════════════════════
+function enterApp() {
+  document.getElementById('splash').classList.add('hidden');
+  const app = document.getElementById('app');
+  app.classList.add('visible');
+  setTimeout(initApp, 800);
+}
+
+function initApp() {
+  updateHomeDate();
+  loadSpiritual(false);
+  renderYearProgress();
+  renderUpcomingEvents();
+  renderMonthSelector();
+  renderYearGoals();
+  renderQuarterGoals();
+  loadVision();
+  loadAchievements();
+  loadDayView();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn, .mnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll(`[onclick="showView('${name}')"]`).forEach(b => b.classList.add('active'));
+  if (name === 'daily') loadDayView();
+  if (name === 'monthly') {
+    // find current month
+    const h = getHijriForDate(new Date());
+    if (h) { currentMonthIdx = h.month - 1; renderMonthDetail(currentMonthIdx); }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HOME: DATE & HERO
+// ═══════════════════════════════════════════════════════════════
+function updateHomeDate() {
+  const today = new Date();
+  const h = getHijriForDate(today);
+  if (h) {
+    document.getElementById('hero-hijri').textContent =
+      `${toArabicNum(h.day)} ${h.monthName} ${toArabicNum(1448)} هـ`;
+  }
+  document.getElementById('hero-gregorian').textContent = formatGregorianEn(today);
+  document.getElementById('hero-day-name').textContent = DAYS_AR[today.getDay()];
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPIRITUAL CONTENT VIA AI
+// ═══════════════════════════════════════════════════════════════
+async function loadSpiritual(forceNew) {
+  const todayKey = dateKey(new Date());
+  const cached = load('spirit_'+todayKey, null);
+  if (cached && !forceNew) {
+    showSpiritual(cached);
+    return;
+  }
+  const el = document.getElementById('spirit-text');
+  const srcEl = document.getElementById('spirit-source');
+  el.className = 'spirit-text spirit-loading';
+  el.textContent = 'جارٍ تحميل الكلمة الروحانية...';
+  srcEl.textContent = '';
+
+  const types = ['آية قرآنية','حديث نبوي شريف','قول لابن القيم الجوزية','قول لابن تيمية','قول للإمام الشافعي'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  const today = new Date();
+  const h = getHijriForDate(today);
+  const monthName = h ? h.monthName : 'محرم';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `أنتِ مستشارة روحانية إسلامية. اليوم هو يوم في شهر ${monthName} ١٤٤٨ هـ.
+اختاري ${type} مناسب ومؤثر للقلب، يمنح صاحبته الطمأنينة والتوجيه.
+أجيبي بصيغة JSON هكذا فقط، بدون أي نص خارج JSON:
+{"text":"النص الكامل هنا","source":"المصدر مثل: سورة البقرة: ١٥٢ أو صحيح البخاري رقم ١٢٣ أو مدارج السالكين لابن القيم","type":"${type}"}`
+        }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    save('spirit_'+todayKey, parsed);
+    showSpiritual(parsed);
+  } catch(e) {
+    // Fallback
+    const fallbacks = [
+      { text:'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا ۝ وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ', source:'سورة الطلاق: ٢-٣', type:'آية قرآنية' },
+      { text:'عَجَبًا لِأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ، وَلَيْسَ ذَاكَ لِأَحَدٍ إِلَّا لِلْمُؤْمِنِ؛ إِنْ أَصَابَتْهُ سَرَّاءُ شَكَرَ فَكَانَ خَيْرًا لَهُ، وَإِنْ أَصَابَتْهُ ضَرَّاءُ صَبَرَ فَكَانَ خَيْرًا لَهُ', source:'صحيح مسلم', type:'حديث نبوي شريف' },
+      { text:'القلب في سيره إلى الله عزَّ وجلَّ بمنزلة الطائر؛ فالمحبة رأسه، والخوف والرجاء جناحاه؛ فمتى سلم الرأس والجناحان فالطير جيِّد الطيران', source:'مدارج السالكين - ابن القيم الجوزية', type:'قول لابن القيم' }
+    ];
+    const f = fallbacks[Math.floor(Math.random()*fallbacks.length)];
+    showSpiritual(f);
+  }
+}
+
+function showSpiritual(data) {
+  const el = document.getElementById('spirit-text');
+  el.className = 'spirit-text';
+  el.textContent = data.text;
+  document.getElementById('spirit-source').textContent = `— ${data.source}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  YEAR PROGRESS
+// ═══════════════════════════════════════════════════════════════
+function renderYearProgress() {
+  const totalDays = MONTHS_1448.reduce((s,m)=>s+m.days, 0);
+  const today = new Date();
+  const elapsed = Math.max(0, Math.round((today - Y1448_START) / 86400000));
+  const pct = Math.min(100, Math.round(elapsed / totalDays * 100));
+
+  document.getElementById('year-progress-info').textContent =
+    `مضى ${toArabicNum(Math.min(elapsed, totalDays))} يوماً من أصل ${toArabicNum(totalDays)} يوم · ${toArabicNum(pct)}%`;
+  document.getElementById('year-progress-bar').style.width = pct + '%';
+
+  // Count entries
+  let count = 0;
+  for (let i = 0; i < totalDays; i++) {
+    const d = addDays(Y1448_START, i);
+    const k = dateKey(d);
+    if (load('day_'+k, null)) count++;
+  }
+  document.getElementById('entries-count').textContent =
+    `📝 سجّلتِ ${toArabicNum(count)} يوم${count===1?'اً':'اً'} في مذكّراتك`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UPCOMING EVENTS
+// ═══════════════════════════════════════════════════════════════
+function renderUpcomingEvents() {
+  const today = new Date();
+  const upcoming = [];
+  for (let mi = 0; mi < MONTHS_1448.length; mi++) {
+    const m = MONTHS_1448[mi];
+    for (let d = 1; d <= m.days; d++) {
+      const eKey = `${mi+1}-${d}`;
+      if (ISLAMIC_EVENTS[eKey]) {
+        const eventDate = addDays(parseDate(m.start), d-1);
+        const diff = Math.round((eventDate - today) / 86400000);
+        if (diff >= 0 && diff <= 60) {
+          upcoming.push({ name: ISLAMIC_EVENTS[eKey], diff, date: eventDate, h: `${toArabicNum(d)} ${m.name}` });
+        }
+      }
+    }
+  }
+  upcoming.sort((a,b)=>a.diff-b.diff);
+  const container = document.getElementById('upcoming-events');
+  if (!upcoming.length) {
+    container.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">لا توجد مناسبات قادمة في الـ٦٠ يوماً القادمة</p>';
+    return;
+  }
+  container.innerHTML = upcoming.slice(0,5).map(e => `
+    <div style="display:flex;align-items:center;gap:1rem;padding:0.6rem 0;border-bottom:1px solid var(--beige-dark);">
+      <div style="background:var(--gold-pale);border-radius:10px;padding:0.4rem 0.7rem;text-align:center;min-width:50px;">
+        <div style="font-size:0.65rem;color:var(--text-light);">بعد</div>
+        <div style="font-family:'Scheherazade New',serif;font-size:1.1rem;color:var(--gold);">${toArabicNum(e.diff)}</div>
+        <div style="font-size:0.6rem;color:var(--text-light);">يوم</div>
+      </div>
+      <div>
+        <div style="font-size:0.9rem;font-weight:600;">${e.name}</div>
+        <div style="font-size:0.75rem;color:var(--text-light);">${e.h} هـ · ${formatGregorianEn(e.date)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DAILY JOURNAL
+// ═══════════════════════════════════════════════════════════════
+function loadDayView() {
+  const h = getHijriForDate(currentDayDate);
+  const dn = DAYS_AR[currentDayDate.getDay()];
+  document.getElementById('day-name-display').textContent = dn;
+  document.getElementById('day-hijri-display').textContent =
+    h ? `${toArabicNum(h.day)} ${h.monthName} ${toArabicNum(1448)} هـ` : '';
+  document.getElementById('day-greg-display').textContent = formatGregorianEn(currentDayDate);
+
+  // Load saved data
+  const key = dateKey(currentDayDate);
+  const saved = load('day_'+key, {});
+
+  // Mood
+  selectedMood = saved.mood || '';
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.mood === selectedMood);
+  });
+
+  // Habits — dynamic list
+  const habits = saved.habits || {};
+  renderHabitGrid(habits);
+
+  // Texts
+  document.getElementById('journal-text').value = saved.journal || '';
+  document.getElementById('gratitude-text').value = saved.gratitude || '';
+  document.getElementById('lessons-text').value = saved.lessons || '';
+
+  // Plans — checklist
+  if (Array.isArray(saved.tomorrow)) {
+    currentDayPlans = saved.tomorrow;
+  } else if (typeof saved.tomorrow === 'string' && saved.tomorrow.trim()) {
+    // backward-compat: convert old free-text plans into a single checklist item
+    currentDayPlans = [{ text: saved.tomorrow.trim(), done: false }];
+  } else {
+    currentDayPlans = [];
+  }
+  renderPlansList();
+
+  // Photos
+  currentDayPhotos = saved.photos || [];
+  renderPhotoGrid();
+}
+
+function changeDay(dir) {
+  const newDate = addDays(currentDayDate, dir);
+  if (newDate >= Y1448_START && newDate <= Y1448_END) {
+    currentDayDate = newDate;
+    loadDayView();
+  }
+}
+
+function selectMood(btn) {
+  selectedMood = btn.dataset.mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function handlePhotos(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      currentDayPhotos.push(e.target.result);
+      renderPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('photo-grid');
+  grid.innerHTML = currentDayPhotos.map((src, i) => `
+    <img class="photo-thumb" src="${src}" alt="صورة ${i+1}"
+      onclick="openPhotoModal('${i}')"
+      title="اضغطي للعرض">
+  `).join('');
+}
+
+function openPhotoModal(idx) {
+  document.getElementById('photo-modal-img').src = currentDayPhotos[idx];
+  document.getElementById('photo-modal').classList.add('open');
+}
+function closePhotoModal() {
+  document.getElementById('photo-modal').classList.remove('open');
+}
+
+function saveDay() {
+  const key = dateKey(currentDayDate);
+  const habits = {};
+  document.querySelectorAll('.habit-item').forEach(item => {
+    habits[item.dataset.habit] = item.classList.contains('done');
+  });
+  const data = {
+    mood: selectedMood,
+    habits,
+    journal: document.getElementById('journal-text').value,
+    gratitude: document.getElementById('gratitude-text').value,
+    lessons: document.getElementById('lessons-text').value,
+    tomorrow: currentDayPlans,
+    photos: currentDayPhotos,
+    savedAt: new Date().toISOString()
+  };
+  save('day_'+key, data);
+  const toast = document.getElementById('save-toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+  renderYearProgress();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MONTHLY VIEW
+// ═══════════════════════════════════════════════════════════════
+function renderMonthSelector() {
+  const container = document.getElementById('month-selector');
+  container.innerHTML = MONTHS_1448.map((m, i) => {
+    const gStart = formatGregorianEn(parseDate(m.start));
+    return `<div class="month-card" onclick="selectMonth(${i})" id="mcard-${i}">
+      <div class="m-name">${m.name}</div>
+      <div class="m-num">${gStart}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectMonth(idx) {
+  currentMonthIdx = idx;
+  document.querySelectorAll('.month-card').forEach((c,i) => c.classList.toggle('active-month', i===idx));
+  renderMonthDetail(idx);
+}
+
+function renderMonthDetail(idx) {
+  const m = MONTHS_1448[idx];
+  const detail = document.getElementById('month-detail');
+  detail.classList.add('shown');
+
+  // Header
+  const startG = parseDate(m.start);
+  const endG = addDays(startG, m.days - 1);
+  const events = [];
+  for (let d = 1; d <= m.days; d++) {
+    const eKey = `${idx+1}-${d}`;
+    if (ISLAMIC_EVENTS[eKey]) events.push({ day: d, name: ISLAMIC_EVENTS[eKey] });
+  }
+  document.getElementById('month-header-card').innerHTML = `
+    <div class="mh-name">${m.name}</div>
+    <div style="font-size:0.85rem;color:var(--gold-light);margin-top:0.3rem">${toArabicNum(m.num)} من شهور ١٤٤٨ هـ</div>
+    <div class="mh-dates">${formatGregorianEn(startG)} — ${formatGregorianEn(endG)}</div>
+    ${events.length ? `<div class="mh-events">${events.map(e=>`<div class="event-tag">✦ ${e.name}</div>`).join('')}</div>` : ''}
+  `;
+
+  // Calendar grid
+  document.getElementById('cal-grid-title').textContent = `تقويم ${m.name} ١٤٤٨ هـ`;
+  const grid = document.getElementById('cal-grid');
+  const dayNames = ['أح','إث','ثل','أر','خم','جم','سب'];
+  let html = dayNames.map(d => `<div class="cal-header">${d}</div>`).join('');
+
+  // First day of month weekday
+  const firstDate = parseDate(m.start);
+  const firstDow = firstDate.getDay(); // 0=Sun
+
+  // Empty cells before
+  for (let i = 0; i < firstDow; i++) html += '<div class="cal-day empty"></div>';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let d = 1; d <= m.days; d++) {
+    const dayDate = addDays(firstDate, d-1);
+    const dayKey = dateKey(dayDate);
+    const isToday = dayDate.getTime() === today.getTime();
+    const hasEntry = !!load('day_'+dayKey, null);
+    const eKey = `${idx+1}-${d}`;
+    const isSpecial = !!ISLAMIC_EVENTS[eKey];
+    const saved = load('day_'+dayKey, {});
+    const mood = saved.mood || '';
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (hasEntry) cls += ' has-entry';
+    if (isSpecial) cls += ' special';
+    html += `<div class="${cls}" onclick="goToDay('${dayKey}')" title="${isSpecial ? ISLAMIC_EVENTS[eKey] : ''}">
+      <div class="h-num">${toArabicNum(d)}</div>
+      <div class="g-num">${dayDate.getDate()}</div>
+      ${mood ? `<div class="day-mood">${mood}</div>` : ''}
+      ${isSpecial ? '<div style="font-size:0.6rem;color:var(--green-dark);line-height:1.1;margin-top:0.1rem">✦</div>' : ''}
+    </div>`;
+  }
+  grid.innerHTML = html;
+
+  // Load month goals
+  document.getElementById('month-goals-text').value = load('mgoals_'+idx, '');
+  document.getElementById('month-reflection-text').value = load('mreflect_'+idx, '');
+
+  // Scroll to detail
+  setTimeout(() => detail.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+
+function goToDay(key) {
+  currentDayDate = parseDate(key);
+  showView('daily');
+}
+
+function saveMonthGoals() {
+  save('mgoals_'+currentMonthIdx, document.getElementById('month-goals-text').value);
+}
+function saveMonthReflection() {
+  save('mreflect_'+currentMonthIdx, document.getElementById('month-reflection-text').value);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GOALS VIEW
+// ═══════════════════════════════════════════════════════════════
+const GOAL_CATEGORIES = [
+  { key:'deen',    icon:'🤲', label:'الدين والروحانيات', color:'var(--green)' },
+  { key:'study',   icon:'📚', label:'الدراسة والعلم',    color:'var(--gold)' },
+  { key:'health',  icon:'💪', label:'الصحة والجسد',      color:'#e74c3c' },
+  { key:'family',  icon:'👨‍👩‍👧', label:'الأسرة والعلاقات',  color:'#8e44ad' },
+  { key:'personal',icon:'🌟', label:'التطوير الشخصي',    color:'#2980b9' },
+  { key:'quran',   icon:'📖', label:'القرآن الكريم',      color:'var(--brown)' }
+];
+
+function getCustomCategories() {
+  return load('custom_goal_categories', []);
+}
+
+function getAllCategories() {
+  const custom = getCustomCategories().map(c => ({ ...c, custom: true }));
+  return [...GOAL_CATEGORIES, ...custom];
+}
+
+function openCategoryManager() {
+  document.getElementById('new-cat-emoji').value = '';
+  document.getElementById('new-cat-name').value = '';
+  document.getElementById('category-manager').style.display = 'flex';
+  setTimeout(() => document.getElementById('new-cat-name').focus(), 50);
+}
+
+function closeCategoryManager() {
+  document.getElementById('category-manager').style.display = 'none';
+}
+
+function addCustomCategory() {
+  const nameInput = document.getElementById('new-cat-name');
+  const emojiInput = document.getElementById('new-cat-emoji');
+  const name = nameInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  const icon = emojiInput.value.trim() || '🌟';
+  const palette = ['#e67e22','#16a085','#c0392b','#2c3e50','#d35400','#27ae60','#7f8c8d','#9b59b6'];
+  const list = getCustomCategories();
+  const key = 'custom_' + Date.now();
+  const color = palette[list.length % palette.length];
+  list.push({ key, icon, label: name, color });
+  save('custom_goal_categories', list);
+  closeCategoryManager();
+  renderYearGoals();
+}
+
+function deleteCustomCategory(key) {
+  let list = getCustomCategories();
+  list = list.filter(c => c.key !== key);
+  save('custom_goal_categories', list);
+  localStorage.removeItem('journal1448_ygoals_'+key);
+  renderYearGoals();
+}
+
+function renderYearGoals() {
+  const grid = document.getElementById('year-goals-grid');
+  const categories = getAllCategories();
+  grid.innerHTML = categories.map(cat => {
+    const goals = load('ygoals_'+cat.key, []);
+    return `
+    <div class="goal-category">
+      <div class="goal-cat-title" style="color:${cat.color};justify-content:space-between;">
+        <span>${cat.icon} ${cat.label}</span>
+        ${cat.custom ? `<button onclick="deleteCustomCategory('${cat.key}')" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:0.85rem;padding:0.1rem 0.3rem;" title="حذف التصنيف">🗑</button>` : ''}
+      </div>
+      <ul class="goal-list" id="glist-${cat.key}">
+        ${goals.map((g,i) => `
+        <li>
+          <div class="goal-check ${g.done?'done':''}" onclick="toggleGoal('${cat.key}',${i})">
+            ${g.done?'✓':''}
+          </div>
+          <span class="goal-text ${g.done?'done-text':''}">${g.text}</span>
+          <button onclick="deleteGoal('${cat.key}',${i})" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:0.75rem;padding:0.1rem 0.3rem;" title="حذف">✕</button>
+        </li>`).join('')}
+      </ul>
+      <div class="add-goal-row">
+        <input type="text" class="add-goal-input" id="ginput-${cat.key}"
+          placeholder="أضيفي هدفاً..."
+          onkeydown="if(event.key==='Enter') addGoal('${cat.key}')">
+        <button class="add-goal-btn" onclick="addGoal('${cat.key}')">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addGoal(catKey) {
+  const input = document.getElementById('ginput-'+catKey);
+  const text = input.value.trim();
+  if (!text) return;
+  const goals = load('ygoals_'+catKey, []);
+  goals.push({ text, done: false });
+  save('ygoals_'+catKey, goals);
+  input.value = '';
+  renderYearGoals();
+}
+
+function toggleGoal(catKey, idx) {
+  const goals = load('ygoals_'+catKey, []);
+  goals[idx].done = !goals[idx].done;
+  save('ygoals_'+catKey, goals);
+  renderYearGoals();
+}
+
+function deleteGoal(catKey, idx) {
+  const goals = load('ygoals_'+catKey, []);
+  goals.splice(idx, 1);
+  save('ygoals_'+catKey, goals);
+  renderYearGoals();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  QUARTER GOALS
+// ═══════════════════════════════════════════════════════════════
+const QUARTERS = [
+  { key:'q1', label:'الربع الأول', months:'(محرم · صفر · ربيع الأول)', icon:'🌱', color:'var(--green-dark)' },
+  { key:'q2', label:'الربع الثاني', months:'(ربيع الآخر · جمادى الأولى · جمادى الآخرة)', icon:'☀️', color:'var(--gold)' },
+  { key:'q3', label:'الربع الثالث', months:'(رجب · شعبان · رمضان)', icon:'🌙', color:'#8e44ad' },
+  { key:'q4', label:'الربع الأخير', months:'(شوال · ذو القعدة · ذو الحجة)', icon:'🏁', color:'#2980b9' }
+];
+
+function renderQuarterGoals() {
+  const grid = document.getElementById('quarters-grid');
+  if (!grid) return;
+  grid.innerHTML = QUARTERS.map(q => {
+    const goals = load('qgoals_' + q.key, []);
+    return `
+    <div style="background:var(--white);border-radius:14px;padding:1.2rem;border:1px solid var(--beige-dark);box-shadow:0 2px 12px var(--shadow);">
+      <div style="font-family:'Scheherazade New',serif;font-size:1.1rem;color:${q.color};margin-bottom:0.3rem;">${q.icon} ${q.label}</div>
+      <div style="font-size:0.72rem;color:var(--text-light);margin-bottom:0.8rem;border-bottom:1px solid var(--beige-dark);padding-bottom:0.5rem;">${q.months}</div>
+      <ul style="list-style:none;margin-bottom:0.7rem;">
+        ${goals.map((g,i) => `
+        <li style="display:flex;align-items:flex-start;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid var(--beige-dark);font-size:0.84rem;">
+          <div onclick="toggleQGoal('${q.key}',${i})" style="width:18px;height:18px;min-width:18px;border-radius:4px;border:2px solid ${q.color};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;margin-top:1px;${g.done?'background:'+q.color+';color:white;':''}transition:all 0.2s;">${g.done?'✓':''}</div>
+          <span style="${g.done?'text-decoration:line-through;opacity:0.45;':''}flex:1;">${g.text}</span>
+          <button onclick="deleteQGoal('${q.key}',${i})" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:0.75rem;padding:0.1rem 0.2rem;">✕</button>
+        </li>`).join('')}
+      </ul>
+      <div style="display:flex;gap:0.5rem;">
+        <input type="text" id="qinput-${q.key}" placeholder="أضيفي هدفاً..."
+          style="flex:1;border:1.5px solid var(--beige-dark);border-radius:8px;padding:0.35rem 0.6rem;font-family:'Cairo',sans-serif;font-size:0.82rem;background:var(--beige);"
+          onkeydown="if(event.key==='Enter') addQGoal('${q.key}')">
+        <button onclick="addQGoal('${q.key}')" style="background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;padding:0.35rem 0.7rem;cursor:pointer;font-size:0.85rem;color:var(--brown);">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addQGoal(qkey) {
+  const input = document.getElementById('qinput-' + qkey);
+  const text = input.value.trim();
+  if (!text) return;
+  const goals = load('qgoals_' + qkey, []);
+  goals.push({ text, done: false });
+  save('qgoals_' + qkey, goals);
+  input.value = '';
+  renderQuarterGoals();
+}
+
+function toggleQGoal(qkey, idx) {
+  const goals = load('qgoals_' + qkey, []);
+  goals[idx].done = !goals[idx].done;
+  save('qgoals_' + qkey, goals);
+  renderQuarterGoals();
+}
+
+function deleteQGoal(qkey, idx) {
+  const goals = load('qgoals_' + qkey, []);
+  goals.splice(idx, 1);
+  save('qgoals_' + qkey, goals);
+  renderQuarterGoals();
+}
+
+function saveQuarterGoals() {
+  // Goals are auto-saved per item; this just shows a toast
+  const toast = document.getElementById('save-toast');
+  if (toast) { toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+}
+function saveVision() { save('vision', document.getElementById('vision-text').value); }
+function loadVision() { document.getElementById('vision-text').value = load('vision', ''); }
+
+// ═══════════════════════════════════════════════════════════════
+//  ACHIEVEMENTS
+// ═══════════════════════════════════════════════════════════════
+function loadAchievements() {
+  const list = load('achievements', []);
+  renderAchievements(list);
+}
+function addAchievement() {
+  const text = document.getElementById('achievement-text').value.trim();
+  if (!text) return;
+  const icon = document.getElementById('achievement-icon').value;
+  const list = load('achievements', []);
+  const today = new Date();
+  const h = getHijriForDate(today);
+  list.unshift({
+    icon, text,
+    date: h ? `${toArabicNum(h.day)} ${h.monthName} ${toArabicNum(1448)} هـ` : formatGregorianEn(today),
+    id: Date.now()
+  });
+  save('achievements', list);
+  document.getElementById('achievement-text').value = '';
+  renderAchievements(list);
+}
+function deleteAchievement(id) {
+  let list = load('achievements', []);
+  list = list.filter(a => a.id !== id);
+  save('achievements', list);
+  renderAchievements(list);
+}
+function renderAchievements(list) {
+  const container = document.getElementById('achievement-list');
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌟</div><p>لم تُضيفي أي إنجاز بعد<br>ابدئي بتسجيل أول إنجازاتك!</p></div>`;
+    return;
+  }
+  container.innerHTML = list.map(a => `
+    <div class="achievement-item">
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-body">
+        <div class="achievement-title">${a.text}</div>
+        <div class="achievement-date">${a.date}</div>
+      </div>
+      <button class="achievement-del" onclick="deleteAchievement(${a.id})" title="حذف">🗑</button>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════════════
+function doSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const container = document.getElementById('search-results');
+  if (q.length < 2) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>اكتبي للبحث في يومياتك</p></div>`;
+    return;
+  }
+  const results = [];
+  const totalDays = MONTHS_1448.reduce((s,m)=>s+m.days,0);
+  for (let i = 0; i < totalDays; i++) {
+    const d = addDays(Y1448_START, i);
+    const k = dateKey(d);
+    const saved = load('day_'+k, null);
+    if (!saved) continue;
+    const searchText = [saved.journal||'', saved.gratitude||'', saved.lessons||'', saved.tomorrow||''].join(' ').toLowerCase();
+    if (searchText.includes(q)) {
+      const h = getHijriForDate(d);
+      results.push({ date: d, key: k, saved, hijri: h });
+    }
+  }
+  if (!results.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><p>لم نجد نتائج للبحث عن "${q}"</p></div>`;
+    return;
+  }
+  container.innerHTML = results.slice(0,20).map(r => {
+    const preview = (r.saved.journal||'').substring(0,100) + (r.saved.journal?.length > 100 ? '...' : '');
+    const habitsCount = Object.values(r.saved.habits||{}).filter(Boolean).length;
+    return `<div class="search-result-card" onclick="goToDay('${r.key}')">
+      <div class="sr-date">${r.hijri ? `${toArabicNum(r.hijri.day)} ${r.hijri.monthName} ١٤٤٨ هـ` : r.key} · ${DAYS_AR[r.date.getDay()]}</div>
+      <div class="sr-preview">${preview || '(لا يوجد نص)'}</div>
+      <div class="sr-tags">
+        ${r.saved.mood ? `<span class="sr-tag">${r.saved.mood}</span>` : ''}
+        ${habitsCount ? `<span class="sr-tag">✅ ${toArabicNum(habitsCount)} عادات</span>` : ''}
+        ${r.saved.photos?.length ? `<span class="sr-tag">📸 ${toArabicNum(r.saved.photos.length)} صور</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT ON PAGE LOAD (auto-enter if previously visited)
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  if (load('app_visited', false)) {
+    enterApp();
+  }
+  // Mark visited
+  save('app_visited', true);
+});
+
+// Close photo modal on bg click
+document.getElementById('photo-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePhotoModal();
+});
+</script>
+</body>
+</html>

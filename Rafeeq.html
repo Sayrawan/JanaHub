@@ -1,0 +1,572 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>رفيق الحفظ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&display=swap">
+<style>
+/* Layout: a single-column mushaf-like app with a bottom tab bar; ink-green on pale sage paper, ochre for what needs attention */
+:root{
+  --paper:#F2F4EF; --sheet:#FFFFFF; --ink:#16241F; --muted:#5E6D66; --line:#DDE3DC;
+  --teal:#1E6656; --teal-soft:#E1EEE9; --ochre:#B7791F; --ochre-soft:#F8EEDC;
+  --mint:#3E8E5E; --rose:#B4483C; --rose-soft:#F7E4E1; --sky:#3A6EA5; --sky-soft:#E2EBF5;
+  --f-quran:"Amiri","Traditional Arabic",serif;
+  --f-ui:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --f-head:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1714; --sheet:#17221E; --ink:#E6EEE9; --muted:#97A8A0; --line:#27352F;
+  --teal:#5FBFA6; --teal-soft:#1B3029; --ochre:#E0A85A; --ochre-soft:#33281A;
+  --mint:#6CC08C; --rose:#E68478; --rose-soft:#3A2220; --sky:#82AEDD; --sky-soft:#1C2A39; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1714; --sheet:#17221E; --ink:#E6EEE9; --muted:#97A8A0; --line:#27352F;
+  --teal:#5FBFA6; --teal-soft:#1B3029; --ochre:#E0A85A; --ochre-soft:#33281A;
+  --mint:#6CC08C; --rose:#E68478; --rose-soft:#3A2220; --sky:#82AEDD; --sky-soft:#1C2A39; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--paper)}
+body{color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;direction:rtl}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 110px}
+h1,h2,h3{font-family:var(--f-head);font-weight:600;margin:0;text-wrap:balance}
+h1{font-size:1.65rem;color:var(--teal)}
+h2{font-size:1.15rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px}
+.top .date{color:var(--muted);font-size:.85rem;text-align:left}
+.sec{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.sub{color:var(--muted);font-size:.85rem}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.num{font-variant-numeric:tabular-nums}
+
+/* daily quote */
+.quote{background:var(--teal);color:#fff;border:none;position:relative;overflow:hidden}
+.quote::before{content:"";position:absolute;inset:-40px -40px auto auto;width:180px;height:180px;border-radius:50%;
+  background:repeating-radial-gradient(circle,rgba(255,255,255,.09) 0 2px,transparent 2px 14px)}
+:root[data-theme="dark"] .quote{color:#0F1714}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .quote{color:#0F1714}}
+.quote .kind{font-size:.75rem;letter-spacing:.04em;opacity:.85;font-weight:600}
+.quote p{font-family:var(--f-quran);font-size:1.45rem;line-height:1.9;margin:6px 0 4px;position:relative}
+.quote .src{font-size:.85rem;opacity:.9}
+.quote .nav{display:flex;gap:6px;margin-top:8px}
+.quote .nav button{background:rgba(255,255,255,.18);border:none;border-radius:999px;padding:4px 12px;color:inherit;font-size:.8rem}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:12px;text-align:center}
+.stat b{display:block;font-family:var(--f-head);font-size:1.5rem;color:var(--teal);line-height:1.2}
+.stat span{font-size:.78rem;color:var(--muted)}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+.bar{height:10px;background:var(--teal-soft);border-radius:99px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+
+/* juz map */
+.juz{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;direction:rtl}
+.juz div{aspect-ratio:1;max-width:100%;border-radius:7px;display:grid;place-items:center;font-size:.75rem;font-weight:600;
+  border:1px solid var(--line);font-variant-numeric:tabular-nums;position:relative;overflow:hidden;background:var(--paper)}
+.juz div i{position:absolute;inset:auto 0 0 0;background:var(--teal);opacity:.85}
+.juz div span{position:relative}
+.juz div.full span{color:#fff}
+
+/* reminders */
+.remind{border-color:var(--ochre);background:var(--ochre-soft)}
+.remind h2{color:var(--ochre)}
+.ritem{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.ritem:last-child{border-bottom:none}
+.ritem .nm{font-family:var(--f-quran);font-size:1.15rem;font-weight:700}
+
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:7px 14px;font-weight:500}
+.btn.pri{background:var(--teal);border-color:var(--teal);color:var(--sheet)}
+.btn.sm{padding:4px 10px;font-size:.82rem}
+.btn.ghost{background:transparent}
+.btn.warn{color:var(--rose);border-color:var(--rose)}
+
+/* chips & badges */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:5px 13px;font-size:.85rem;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip small{opacity:.7;margin-inline-start:4px}
+.badge{font-size:.72rem;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.b-none{background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+.b-learning{background:var(--sky-soft);color:var(--sky)}
+.b-memorized{background:var(--teal-soft);color:var(--teal)}
+.b-mastered{background:var(--teal);color:var(--sheet)}
+.b-late{background:var(--ochre-soft);color:var(--ochre)}
+
+/* surah list */
+.search{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--sheet)}
+.slist{display:flex;flex-direction:column;background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.srow{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:none;border-bottom:1px solid var(--line);background:none;text-align:right;width:100%}
+.srow:last-child{border-bottom:none}
+.srow:hover{background:var(--paper)}
+.sno{width:34px;height:34px;display:grid;place-items:center;font-size:.8rem;font-weight:600;color:var(--teal);
+  background:var(--teal-soft);border-radius:50% 50% 50% 8px;font-variant-numeric:tabular-nums}
+.snm{font-family:var(--f-quran);font-size:1.2rem;font-weight:700;line-height:1.3}
+.smeta{font-size:.76rem;color:var(--muted)}
+.sright{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+
+/* bulk */
+.bulk{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bulk select{padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--sheet)}
+
+/* week */
+.week{display:flex;flex-direction:column;gap:10px}
+.day{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.day.today{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
+.day h3{font-size:1rem;display:flex;gap:8px;align-items:center}
+.day h3 .tag{font-family:var(--f-ui);font-size:.7rem;background:var(--teal);color:var(--sheet);padding:1px 8px;border-radius:99px}
+.task{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px dashed var(--line)}
+.task:first-of-type{border-top:none}
+.chk{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:var(--sheet);display:grid;place-items:center;padding:0}
+.chk[aria-checked="true"]{background:var(--mint);border-color:var(--mint);color:#fff}
+.task.done .tt{text-decoration:line-through;opacity:.6}
+.tt{font-weight:600}
+.tkind{font-size:.72rem;padding:1px 8px;border-radius:99px;font-weight:600;margin-inline-end:6px}
+.k-hifz{background:var(--sky-soft);color:var(--sky)}
+.k-tathbit{background:var(--teal-soft);color:var(--teal)}
+.k-review{background:var(--ochre-soft);color:var(--ochre)}
+.del{background:none;border:none;color:var(--muted);font-size:1.1rem;padding:4px 8px}
+.empty{color:var(--muted);font-size:.85rem;padding:4px 0}
+
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);min-width:0}
+.form select,.form input{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);width:100%}
+.form .full{grid-column:1/-1}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-weight:600;font-size:.88rem}
+.seg button[aria-pressed="true"]{background:var(--teal);color:var(--sheet);border-color:var(--teal)}
+.seg.four{grid-template-columns:repeat(4,1fr)}
+@media (max-width:420px){.seg.four{grid-template-columns:repeat(2,1fr)}}
+
+.wsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wsum div{border-radius:12px;padding:10px;text-align:center}
+.wsum b{display:block;font-family:var(--f-head);font-size:1.2rem}
+.wsum span{font-size:.75rem}
+
+/* tabbar */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.tabs{position:fixed;inset:auto 0 0 0;background:var(--sheet);border-top:1px solid var(--line);z-index:20;
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.tabs nav{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tabs button{background:none;border:none;padding:9px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;color:var(--muted)}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-current="page"]{color:var(--teal);font-weight:600}
+
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(10,20,16,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--sheet);width:100%;max-width:560px;border-radius:20px 20px 0 0;max-height:88%;overflow:auto;
+  padding:18px max(18px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:-6px auto 0}
+.sheet textarea{width:100%;min-height:80px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);resize:vertical}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.kv div{background:var(--paper);border-radius:10px;padding:8px}
+.kv b{display:block;font-variant-numeric:tabular-nums}
+.kv span{font-size:.72rem;color:var(--muted)}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);
+  padding:8px 16px;border-radius:99px;font-size:.88rem;z-index:40;transition:opacity .25s}
+.ach-m{font-family:var(--f-head);font-size:.9rem;color:var(--muted);margin:14px 0 4px}
+.ach{display:flex;flex-direction:column;border-inline-start:2px solid var(--teal-soft);margin-inline-start:13px}
+.ach-i{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;background:none;border:none;text-align:right;padding:7px 0;margin-inline-start:-15px;width:calc(100% + 15px)}
+.ach-i>span:nth-child(2){display:flex;flex-direction:column;min-width:0}
+.ach-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:700;border:2px solid var(--sheet)}
+.sync{font-size:.72rem;color:var(--muted)}
+.list-tight{display:flex;flex-direction:column;gap:6px}
+.calc input{width:80px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>رفيق الحفظ</h1>
+      <div class="sub" id="greet">احفظ، ثبّت، راجع</div>
+    </div>
+    <div class="date"><div id="hijri"></div><div id="greg"></div><div class="sync" id="sync"></div></div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<div class="tabs"><nav id="tabs">
+  <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>الرئيسية</button>
+  <button data-tab="surahs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5c3-1.5 5.5-1.5 8 0v14c-2.5-1.5-5-1.5-8 0zM20 5c-3-1.5-5.5-1.5-8 0v14c2.5-1.5 5-1.5 8 0z"/></svg>السور</button>
+  <button data-tab="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>جدولي</button>
+  <button data-tab="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20V10M6 20V4M18 20v-6"/></svg>إنجازي</button>
+</nav></div>
+
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- Data ---------- */
+const NAMES="الفاتحة،البقرة،آل عمران،النساء،المائدة،الأنعام،الأعراف،الأنفال،التوبة،يونس،هود،يوسف،الرعد،إبراهيم،الحجر،النحل،الإسراء،الكهف،مريم،طه،الأنبياء،الحج،المؤمنون،النور،الفرقان،الشعراء،النمل،القصص،العنكبوت،الروم،لقمان،السجدة،الأحزاب،سبأ،فاطر،يس،الصافات،ص،الزمر،غافر،فصلت،الشورى،الزخرف،الدخان،الجاثية،الأحقاف،محمد،الفتح،الحجرات،ق،الذاريات،الطور،النجم،القمر،الرحمن،الواقعة،الحديد،المجادلة،الحشر،الممتحنة،الصف،الجمعة،المنافقون،التغابن،الطلاق،التحريم،الملك،القلم،الحاقة،المعارج،نوح،الجن،المزمل،المدثر،القيامة،الإنسان،المرسلات،النبأ،النازعات،عبس،التكوير،الانفطار،المطففين،الانشقاق،البروج،الطارق،الأعلى،الغاشية،الفجر،البلد،الشمس،الليل،الضحى،الشرح،التين،العلق،القدر،البينة،الزلزلة،العاديات،القارعة،التكاثر،العصر،الهمزة،الفيل،قريش،الماعون،الكوثر،الكافرون،النصر،المسد،الإخلاص،الفلق،الناس".split("،");
+const AYAT=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
+const START=[1,2,50,77,106,128,151,177,187,208,221,235,249,255,262,267,282,293,305,312,322,332,342,350,359,367,377,385,396,404,411,415,418,428,434,440,446,453,458,467,477,483,489,496,499,502,507,511,515,518,520,523,526,528,531,534,537,542,545,549,551,553,554,556,558,560,562,564,566,568,570,572,574,575,577,578,580,582,583,585,586,587,587,589,590,591,591,592,593,594,595,595,596,596,597,597,598,598,599,599,600,600,601,601,601,602,602,602,603,603,603,604,604,604];
+const MAKKI=new Set([1,6,7,10,11,12,14,15,16,17,18,19,20,21,23,25,26,27,28,29,30,31,32,34,35,36,37,38,39,40,41,42,43,44,45,46,50,51,52,53,54,56,67,68,69,70,71,72,73,74,75,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,100,101,102,103,104,105,106,107,108,109,111,112,113,114]);
+const juzOfPage=p=>Math.min(30,p<=21?1:Math.ceil((p-1)/20));
+const juzRange=j=>j===1?[1,21]:j===30?[582,604]:[20*j-18,20*j+1];
+const S=NAMES.map((n,i)=>{
+  const st=START[i]; let nx=605; for(let k=i+1;k<114;k++){if(START[k]>st){nx=START[k];break}}
+  const group=START.filter(x=>x===st).length;
+  const end=i<113&&START[i+1]>st?START[i+1]-1:st;
+  return {no:i+1,name:n,ayat:AYAT[i],start:st,end:Math.max(st,end),pages:(nx-st)/group,juz:juzOfPage(st),makki:MAKKI.has(i+1)};
+});
+const QUOTES=[
+ {k:"آية",t:"وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ",s:"سورة القمر، الآية ١٧"},
+ {k:"حديث",t:"خيركم من تعلم القرآن وعلمه",s:"رواه البخاري"},
+ {k:"آية",t:"بَلْ هُوَ آيَاتٌ بَيِّنَاتٌ فِي صُدُورِ الَّذِينَ أُوتُوا الْعِلْمَ",s:"سورة العنكبوت، الآية ٤٩"},
+ {k:"حديث",t:"الماهر بالقرآن مع السفرة الكرام البررة، والذي يقرأ القرآن ويتتعتع فيه وهو عليه شاق له أجران",s:"متفق عليه"},
+ {k:"آية",t:"إِنَّا نَحْنُ نَزَّلْنَا الذِّكْرَ وَإِنَّا لَهُ لَحَافِظُونَ",s:"سورة الحجر، الآية ٩"},
+ {k:"حديث",t:"اقرؤوا القرآن فإنه يأتي يوم القيامة شفيعاً لأصحابه",s:"رواه مسلم"},
+ {k:"آية",t:"إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ",s:"سورة الإسراء، الآية ٩"},
+ {k:"حديث",t:"تعاهدوا هذا القرآن، فوالذي نفس محمد بيده لهو أشد تفلتاً من الإبل في عقلها",s:"رواه مسلم"},
+ {k:"آية",t:"كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ وَلِيَتَذَكَّرَ أُولُو الْأَلْبَابِ",s:"سورة ص، الآية ٢٩"},
+ {k:"حديث",t:"من قرأ حرفاً من كتاب الله فله به حسنة، والحسنة بعشر أمثالها",s:"رواه الترمذي وصححه"},
+ {k:"آية",t:"وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا",s:"سورة المزمل، الآية ٤"},
+ {k:"حديث",t:"إن الله يرفع بهذا الكتاب أقواماً ويضع به آخرين",s:"رواه مسلم"},
+ {k:"آية",t:"إِنَّ الَّذِينَ يَتْلُونَ كِتَابَ اللَّهِ وَأَقَامُوا الصَّلَاةَ وَأَنفَقُوا مِمَّا رَزَقْنَاهُمْ سِرًّا وَعَلَانِيَةً يَرْجُونَ تِجَارَةً لَّن تَبُورَ",s:"سورة فاطر، الآية ٢٩"},
+ {k:"حديث",t:"إنما مثل صاحب القرآن كمثل صاحب الإبل المعقلة، إن عاهد عليها أمسكها، وإن أطلقها ذهبت",s:"متفق عليه"},
+ {k:"آية",t:"وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",s:"سورة الإسراء، الآية ٨٢"},
+ {k:"حديث",t:"مثل المؤمن الذي يقرأ القرآن مثل الأترجة، ريحها طيب وطعمها طيب",s:"متفق عليه"},
+ {k:"آية",t:"لَوْ أَنزَلْنَا هَٰذَا الْقُرْآنَ عَلَىٰ جَبَلٍ لَّرَأَيْتَهُ خَاشِعًا مُّتَصَدِّعًا مِّنْ خَشْيَةِ اللَّهِ",s:"سورة الحشر، الآية ٢١"},
+ {k:"حديث",t:"لا حسد إلا في اثنتين: رجل آتاه الله القرآن فهو يقوم به آناء الليل وآناء النهار، ورجل آتاه الله مالاً فهو ينفقه آناء الليل وآناء النهار",s:"متفق عليه"},
+ {k:"آية",t:"يَا أَيُّهَا النَّاسُ قَدْ جَاءَتْكُم مَّوْعِظَةٌ مِّن رَّبِّكُمْ وَشِفَاءٌ لِّمَا فِي الصُّدُورِ وَهُدًى وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",s:"سورة يونس، الآية ٥٧"},
+ {k:"حديث",t:"أفلا يغدو أحدكم إلى المسجد فيعلم أو يقرأ آيتين من كتاب الله عز وجل خير له من ناقتين، وثلاث خير له من ثلاث",s:"رواه مسلم"}
+];
+const ST={none:"لم تُحفظ",learning:"قيد الحفظ",memorized:"محفوظة",mastered:"مثبتة"};
+const KIND={hifz:"حفظ",tathbit:"تثبيت",review:"مراجعة"};
+const DAYS=["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+const REVIEW_DAYS=14;
+
+/* ---------- Dates ---------- */
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>iso(new Date());
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const daysSince=s=>s?Math.round((parse(today())-parse(s))/864e5):null;
+const satIdx=d=>(d.getDay()+1)%7;
+const weekKey=()=>{const d=new Date();d.setDate(d.getDate()-satIdx(d));return iso(d)};
+const ar=n=>Number(n).toLocaleString("ar-EG");
+const fmtDate=s=>{try{return parse(s).toLocaleDateString("ar-EG",{day:"numeric",month:"long"})}catch(e){return s}};
+const agoText=n=>n===null?"لم تُراجع بعد":n===0?"اليوم":n===1?"أمس":n===2?"قبل يومين":n<=10?"قبل "+ar(n)+" أيام":"قبل "+ar(n)+" يوماً";
+
+/* ---------- State & storage ---------- */
+const blank=()=>({v:1,u:0,s:{},tasks:[],done:{},log:[],qOff:0,goal:5});
+let state=blank();
+try{const raw=localStorage.getItem("hifz-state");if(raw)state=Object.assign(blank(),JSON.parse(raw))}catch(e){}
+let docRef=null,writing=false,pending=false,timer=null;
+function save(){
+  state.u=Date.now();
+  try{localStorage.setItem("hifz-state",JSON.stringify(state))}catch(e){}
+  if(!docRef)return;
+  clearTimeout(timer);timer=setTimeout(flush,700);
+}
+async function flush(){
+  if(!docRef)return;
+  if(writing){pending=true;return}
+  writing=true;setSync("جارٍ الحفظ…");
+  try{await docRef.set(JSON.parse(JSON.stringify(state)));setSync("محفوظ في حسابك")}
+  catch(e){setSync(e&&e.code==="invalid_argument"?"محفوظ على هذا الجهاز فقط":"تعذّر الحفظ، سنحاول لاحقاً")}
+  writing=false;if(pending){pending=false;flush()}
+}
+function setSync(t){document.getElementById("sync").textContent=t}
+(async()=>{
+  try{
+    if(!window.claude||!claude.use){setSync("محفوظ على هذا الجهاز");return}
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    const id=user?await user.id():null;
+    if(!db||!id){setSync("محفوظ على هذا الجهاز");return}
+    docRef=db.collection("data/users/"+id).doc("hifz");
+    setSync("جارٍ المزامنة…");
+    let first=true;const to=setTimeout(()=>setSync("المزامنة غير متاحة الآن"),10000);
+    docRef.onSnapshot(snap=>{
+      if(snap.metadata.hasPendingWrites)return;
+      if(!snap.metadata.fromCache)clearTimeout(to);
+      const d=snap.exists?snap.data():null;
+      if(d&&(d.u||0)>(state.u||0)){state=Object.assign(blank(),JSON.parse(JSON.stringify(d)));try{localStorage.setItem("hifz-state",JSON.stringify(state))}catch(e){}render()}
+      else if(first&&!snap.metadata.fromCache&&(!d||(state.u||0)>(d.u||0))&&state.u){flush()}
+      if(!snap.metadata.fromCache){first=false;setSync("محفوظ في حسابك")}
+    },()=>{clearTimeout(to);setSync("محفوظ على هذا الجهاز")});
+  }catch(e){setSync("محفوظ على هذا الجهاز")}
+})();
+
+/* ---------- Helpers ---------- */
+const sOf=no=>state.s[no]||{st:"none"};
+const setS=(no,patch)=>{state.s[no]=Object.assign({},sOf(no),patch)};
+const isHeld=no=>["memorized","mastered"].includes(sOf(no).st);
+const lastTouch=no=>{const x=sOf(no);return x.r||x.d||null};
+const isLate=no=>{if(!isHeld(no))return false;const n=daysSince(lastTouch(no));return n===null||n>=REVIEW_DAYS};
+function setStatus(no,st){
+  const x=sOf(no),t=today(),p={st,d:x.st!==st?t:x.d};
+  if(st==="memorized"||st==="mastered"){if(!x.hd)p.hd=t}
+  if(st==="mastered"){if(!x.md)p.md=t}else p.md=null;
+  if(st==="none"||st==="learning"){p.hd=null;p.md=null}
+  setS(no,p);
+}
+function achievements(){
+  const ev=[];
+  S.forEach(s=>{const x=sOf(s.no);if(!isHeld(s.no))return;
+    const hd=x.hd||x.d;if(hd)ev.push({no:s.no,k:"hifz",date:hd});
+    if(x.st==="mastered"&&x.md)ev.push({no:s.no,k:"tathbit",date:x.md});});
+  return ev.sort((a,b)=>b.date.localeCompare(a.date)||b.no-a.no);
+}
+const logDay=()=>{const t=today();if(!state.log.includes(t)){state.log.push(t);state.log=state.log.slice(-400)}};
+function markReviewed(no){const x=sOf(no);setS(no,{r:today(),c:(x.c||0)+1});logDay();save();toast("سُجّلت مراجعة سورة "+S[no-1].name)}
+function streak(){
+  const set=new Set(state.log);let n=0;const d=new Date();
+  if(!set.has(iso(d)))d.setDate(d.getDate()-1);
+  while(set.has(iso(d))){n++;d.setDate(d.getDate()-1)}
+  return n;
+}
+function heldPages(){return S.reduce((a,s)=>a+(isHeld(s.no)?s.pages:0),0)}
+function juzProgress(){
+  const page=new Array(606).fill(0);
+  S.forEach(s=>{if(!isHeld(s.no))return;const n=s.end-s.start+1;for(let p=s.start;p<=s.end;p++)page[p]+=s.pages/n});
+  return Array.from({length:30},(_,i)=>{const [a,b]=juzRange(i+1);let sum=0;for(let p=a;p<=b;p++)sum+=Math.min(1,page[p]);return sum/(b-a+1)});
+}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let toastT;function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,2200)}
+
+/* ---------- Views ---------- */
+let tab="home",filter="all",query="",juzFilter=0;
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b=>{if(b.dataset.tab===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  const v=document.getElementById("view");
+  v.innerHTML=tab==="home"?home():tab==="surahs"?surahs():tab==="plan"?plan():more();
+}
+function quoteCard(){
+  const start=new Date(new Date().getFullYear(),0,0);const doy=Math.floor((new Date()-start)/864e5);
+  const q=QUOTES[((doy+state.qOff)%QUOTES.length+QUOTES.length)%QUOTES.length];
+  return `<section class="card quote"><div class="kind">${q.k==="آية"?"آية اليوم":"حديث اليوم"}</div>
+  <p>${q.k==="آية"?"﴿"+q.t+"﴾":"«"+q.t+"»"}</p><div class="src">${q.s}</div>
+  <div class="nav"><button data-act="qprev">السابق</button><button data-act="qnext">التالي</button></div></section>`;
+}
+function todayTasks(){
+  const di=satIdx(new Date()),wk=weekKey(),done=state.done[wk]||[];
+  return state.tasks.filter(t=>t.day===di).map(t=>({...t,isDone:done.includes(t.id)}));
+}
+function taskRow(t,doneList){
+  const s=S[t.s-1];const done=doneList.includes(t.id);
+  return `<div class="task ${done?"done":""}"><button class="chk" role="checkbox" aria-checked="${done}" aria-label="تم" data-act="toggle" data-id="${t.id}">${done?"✓":""}</button>
+  <div><div class="tt"><span class="tkind k-${t.t}">${KIND[t.t]}</span>سورة ${s.name}</div><div class="smeta num">من صفحة ${ar(t.f)} إلى ${ar(t.to)} · ${ar(t.to-t.f+1)} ${t.to-t.f+1>2?"صفحات":"صفحة"}</div></div>
+  <button class="del" aria-label="حذف" data-act="deltask" data-id="${t.id}">×</button></div>`;
+}
+function home(){
+  const held=S.filter(s=>isHeld(s.no)).length,mastered=S.filter(s=>sOf(s.no).st==="mastered").length;
+  const pages=heldPages(),pct=pages/604*100;const jp=juzProgress();
+  const late=S.filter(s=>isLate(s.no)).sort((a,b)=>(daysSince(lastTouch(b.no))??999)-(daysSince(lastTouch(a.no))??999));
+  const tt=todayTasks();const wk=weekKey();const doneList=state.done[wk]||[];
+  const isNew=!Object.keys(state.s).length&&!state.tasks.length;
+  return `<div class="sec">${quoteCard()}
+  ${isNew?`<section class="card"><h2>ابدأ من هنا</h2><p class="sub" style="margin:6px 0 10px">حدّد السور التي تحفظها، ثم ضع جدولك الأسبوعي. يمكنك تحديد جزء كامل دفعة واحدة من صفحة السور.</p>
+   <div class="row"><button class="btn pri" data-act="go" data-tab="surahs">حدّد محفوظك</button><button class="btn" data-act="quickamma">أحفظ جزء عمّ كاملاً</button></div></section>`:""}
+  <div class="stats">
+    <div class="stat"><b class="num">${ar(held)}</b><span>سورة محفوظة</span></div>
+    <div class="stat"><b class="num">${ar(mastered)}</b><span>سورة مثبتة</span></div>
+    <div class="stat"><b class="num">${ar(Math.round(pages))}</b><span>صفحة من ٦٠٤</span></div>
+    <div class="stat"><b class="num">${ar(streak())}</b><span>أيام متتالية</span></div>
+  </div>
+  ${(()=>{const l=achievements().find(e=>e.k==="hifz");return l?`<button class="card row between" style="width:100%;text-align:right" data-act="go" data-tab="more"><span><span class="sub">آخر إنجاز</span><br><span class="snm">سورة ${S[l.no-1].name}</span></span><span class="badge b-memorized">${fmtDate(l.date)}</span></button>`:""})()}
+  <section class="card"><div class="row between"><h2>تقدمك في المصحف</h2><span class="num" style="font-weight:600;color:var(--teal)">${ar(pct.toFixed(1))}٪</span></div>
+   <div class="bar" style="margin:10px 0 14px"><i style="width:${pct}%;background:var(--teal)"></i></div>
+   <div class="juz">${jp.map((f,i)=>`<div class="${f>=.98?"full":""}" title="الجزء ${i+1}: ${Math.round(f*100)}٪"><i style="height:${f*100}%"></i><span>${ar(i+1)}</span></div>`).join("")}</div>
+   <div class="sub" style="margin-top:8px">كل مربع جزء، وارتفاع اللون يبيّن كم حفظت منه.</div></section>
+  ${late.length?`<section class="card remind"><div class="row between"><h2>حان وقت المراجعة</h2><span class="badge b-late">${ar(late.length)} سورة</span></div>
+   <div class="sub">مرّ على مراجعتها أسبوعان أو أكثر. «تعاهدوا هذا القرآن».</div>
+   <div class="list-tight" style="margin-top:6px">${late.slice(0,6).map(s=>`<div class="ritem"><div><div class="nm">${s.name}</div><div class="smeta">${agoText(daysSince(lastTouch(s.no)))}</div></div>
+   <button class="btn sm pri" data-act="review" data-no="${s.no}">راجعتها</button></div>`).join("")}</div>
+   ${late.length>6?`<button class="btn ghost sm" data-act="go" data-tab="surahs" data-filter="late">عرض الكل (${ar(late.length)})</button>`:""}</section>`:""}
+  <section class="card"><div class="row between"><h2>ورد اليوم · ${DAYS[satIdx(new Date())]}</h2><button class="btn sm" data-act="go" data-tab="plan">الجدول</button></div>
+   ${tt.length?tt.map(t=>taskRow(t,doneList)).join(""):`<div class="empty">لا مهام لليوم في جدولك. أضف حفظاً أو مراجعة من «جدولي».</div>`}</section>
+  </div>`;
+}
+function surahs(){
+  const counts={all:114,none:0,learning:0,memorized:0,mastered:0,late:0};
+  S.forEach(s=>{counts[sOf(s.no).st]++;if(isLate(s.no))counts.late++});
+  const q=query.trim();
+  const list=S.filter(s=>{
+    const st=sOf(s.no).st;
+    if(filter==="late"&&!isLate(s.no))return false;
+    if(!["all","late"].includes(filter)&&st!==filter)return false;
+    if(juzFilter&&s.juz!==juzFilter)return false;
+    if(q&&!(s.name.includes(q)||String(s.no)===q))return false;return true});
+  const chips=[["all","الكل"],["memorized","محفوظة"],["mastered","مثبتة"],["learning","قيد الحفظ"],["none","لم تُحفظ"],["late","تحتاج مراجعة"]];
+  return `<div class="sec">
+  <input class="search" id="q" type="search" placeholder="ابحث باسم السورة أو رقمها" value="${esc(query)}">
+  <div class="chips">${chips.map(([k,l])=>`<button class="chip" aria-pressed="${filter===k}" data-act="filter" data-f="${k}">${l}<small class="num">${ar(counts[k])}</small></button>`).join("")}</div>
+  <div class="bulk"><select id="juzSel" aria-label="الجزء"><option value="0">كل الأجزاء</option>${Array.from({length:30},(_,i)=>`<option value="${i+1}" ${juzFilter===i+1?"selected":""}>الجزء ${ar(i+1)}</option>`).join("")}</select>
+   ${juzFilter?`<span class="sub">تحديد الجزء كله:</span><button class="btn sm" data-act="bulk" data-st="memorized">محفوظ</button><button class="btn sm" data-act="bulk" data-st="mastered">مثبت</button><button class="btn sm ghost" data-act="bulk" data-st="none">مسح</button>`:""}</div>
+  <div class="slist">${list.length?list.map(s=>{const x=sOf(s.no);const late=isLate(s.no);const n=daysSince(lastTouch(s.no));
+   return `<button class="srow" data-act="open" data-no="${s.no}"><span class="sno">${ar(s.no)}</span>
+   <span><div class="snm">${s.name}</div><div class="smeta num">${s.makki?"مكية":"مدنية"} · ${ar(s.ayat)} آية · ص ${ar(s.start)} · الجزء ${ar(s.juz)}</div></span>
+   <span class="sright"><span class="badge b-${x.st}">${ST[x.st]}</span>${isHeld(s.no)?`<span class="badge ${late?"b-late":"b-none"}">${late?"تحتاج مراجعة":agoText(n)}</span>`:""}</span></button>`}).join(""):`<div class="empty" style="padding:16px">لا سور مطابقة.</div>`}</div></div>`;
+}
+let draft={t:"hifz",s:78,day:satIdx(new Date()),f:582,to:582};
+function plan(){
+  const wk=weekKey(),doneList=state.done[wk]||[];const di=satIdx(new Date());
+  const sum={hifz:[0,0],tathbit:[0,0],review:[0,0]};
+  state.tasks.forEach(t=>{const p=t.to-t.f+1;sum[t.t][1]+=p;if(doneList.includes(t.id))sum[t.t][0]+=p});
+  const ws=parse(wk);const we=new Date(ws);we.setDate(we.getDate()+6);
+  const s=S[draft.s-1];
+  return `<div class="sec">
+  <section class="card"><div class="row between"><h2>أسبوعك</h2><span class="sub num">${fmtDate(wk)} – ${fmtDate(iso(we))}</span></div>
+   <div class="wsum" style="margin-top:10px">
+    <div style="background:var(--sky-soft);color:var(--sky)"><b class="num">${ar(sum.hifz[0])}/${ar(sum.hifz[1])}</b><span>صفحات حفظ</span></div>
+    <div style="background:var(--teal-soft);color:var(--teal)"><b class="num">${ar(sum.tathbit[0])}/${ar(sum.tathbit[1])}</b><span>صفحات تثبيت</span></div>
+    <div style="background:var(--ochre-soft);color:var(--ochre)"><b class="num">${ar(sum.review[0])}/${ar(sum.review[1])}</b><span>صفحات مراجعة</span></div>
+   </div><div class="sub" style="margin-top:8px">الجدول يتكرر كل أسبوع، وعلامات الإنجاز تبدأ من جديد كل سبت.</div></section>
+
+  <section class="card"><h2 style="margin-bottom:10px">أضف مهمة</h2>
+   <div class="seg" style="margin-bottom:10px">${Object.entries(KIND).map(([k,l])=>`<button aria-pressed="${draft.t===k}" data-act="dkind" data-k="${k}">${l}</button>`).join("")}</div>
+   <div class="form">
+    <label class="full">السورة<select id="dS">${S.map(x=>`<option value="${x.no}" ${x.no===draft.s?"selected":""}>${ar(x.no)}. ${x.name} — ${ST[sOf(x.no).st]}</option>`).join("")}</select></label>
+    <label>من صفحة<input id="dF" type="number" inputmode="numeric" min="${s.start}" max="${s.end}" value="${draft.f}"></label>
+    <label>إلى صفحة<input id="dT" type="number" inputmode="numeric" min="${s.start}" max="${s.end}" value="${draft.to}"></label>
+    <label class="full">اليوم<select id="dD">${DAYS.map((d,i)=>`<option value="${i}" ${i===draft.day?"selected":""}>${d}${i===di?" (اليوم)":""}</option>`).join("")}</select></label>
+    <div class="full sub">سورة ${s.name} في المصحف من صفحة ${ar(s.start)} إلى ${ar(s.end)}.</div>
+    <button class="btn pri full" data-act="addtask">إضافة إلى الجدول</button>
+   </div></section>
+
+  <div class="week">${DAYS.map((d,i)=>{const ts=state.tasks.filter(t=>t.day===i);
+   return `<div class="day ${i===di?"today":""}"><h3>${d}${i===di?'<span class="tag">اليوم</span>':""}</h3>
+   ${ts.length?ts.map(t=>taskRow(t,doneList)).join(""):`<div class="empty">لا مهام</div>`}</div>`}).join("")}</div></div>`;
+}
+function more(){
+  const pages=heldPages(),left=604-pages;const g=Math.max(0.5,Number(state.goal)||5);
+  const weeks=Math.ceil(left/g);const fin=new Date();fin.setDate(fin.getDate()+weeks*7);
+  const finTxt=left<=0?"أتممت حفظ القرآن كاملاً، بارك الله لك":fin.toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+  const reviewed=S.filter(s=>isHeld(s.no)).map(s=>({s,n:daysSince(lastTouch(s.no))}));
+  const fresh=reviewed.filter(x=>x.n!==null&&x.n<7).length,mid=reviewed.filter(x=>x.n!==null&&x.n>=7&&x.n<14).length,old=reviewed.length-fresh-mid;
+  const tot=Math.max(1,reviewed.length);
+  const top=[...S].filter(s=>sOf(s.no).c).sort((a,b)=>sOf(b.no).c-sOf(a.no).c).slice(0,5);
+  const notes=S.filter(s=>sOf(s.no).n);
+  const last28=Array.from({length:28},(_,i)=>{const d=new Date();d.setDate(d.getDate()-27+i);return state.log.includes(iso(d))});
+  const ev=achievements();const months={};
+  ev.forEach(e=>{const k=e.date.slice(0,7);(months[k]=months[k]||[]).push(e)});
+  const thisMonth=(months[today().slice(0,7)]||[]).filter(e=>e.k==="hifz").length;
+  const doneJuz=juzProgress().filter(f=>f>=.98).length;
+  return `<div class="sec">
+  <section class="card"><div class="row between"><h2>سجل إنجازاتي</h2><span class="badge b-memorized">${ar(ev.filter(e=>e.k==="hifz").length)} سورة</span></div>
+   <div class="wsum" style="margin:10px 0 4px">
+    <div style="background:var(--teal-soft);color:var(--teal)"><b class="num">${ar(thisMonth)}</b><span>سور هذا الشهر</span></div>
+    <div style="background:var(--sky-soft);color:var(--sky)"><b class="num">${ar(ev.filter(e=>e.k==="tathbit").length)}</b><span>سور مثبتة</span></div>
+    <div style="background:var(--ochre-soft);color:var(--ochre)"><b class="num">${ar(doneJuz)}</b><span>أجزاء كاملة</span></div></div>
+   ${ev.length?Object.keys(months).map(m=>`<div class="ach-m">${parse(m+"-01").toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}</div>
+    <div class="ach">${months[m].map(e=>`<button class="ach-i" data-act="open" data-no="${e.no}"><span class="ach-dot k-${e.k==="hifz"?"hifz":"tathbit"}">${e.k==="hifz"?"✓":"★"}</span>
+     <span><span class="snm">سورة ${S[e.no-1].name}</span><span class="smeta">${e.k==="hifz"?"أتممت حفظها":"أتممت تثبيتها"} · ${ar(S[e.no-1].ayat)} آية</span></span>
+     <span class="smeta num">${fmtDate(e.date)}</span></button>`).join("")}</div>`).join("")
+    :`<div class="empty" style="margin-top:6px">كل سورة تحددها «محفوظة» تُضاف هنا تلقائياً مع تاريخ حفظها.</div>`}</section>
+  <section class="card calc"><h2>متى تختم الحفظ؟</h2>
+   <div class="row" style="margin:10px 0"><span>إذا حفظت</span><input id="goal" type="number" min="0.5" step="0.5" value="${g}" aria-label="صفحات أسبوعياً"><span>صفحات أسبوعياً</span></div>
+   <div>بقي لك <b class="num">${ar(Math.max(0,Math.round(left)))}</b> صفحة، فتختم بإذن الله في <b style="color:var(--teal)">${finTxt}</b>${left>0?` (نحو ${ar(weeks)} أسبوعاً)`:""}.</div></section>
+
+  <section class="card"><h2>صحة المراجعة</h2><div class="sub" style="margin-bottom:8px">آخر مراجعة لكل سورة محفوظة</div>
+   <div class="bar" style="height:14px"><i style="width:${fresh/tot*100}%;background:var(--mint)"></i><i style="width:${mid/tot*100}%;background:var(--ochre)"></i><i style="width:${old/tot*100}%;background:var(--rose)"></i></div>
+   <div class="row" style="margin-top:8px;font-size:.82rem"><span style="color:var(--mint)">● خلال أسبوع: ${ar(fresh)}</span><span style="color:var(--ochre)">● أسبوع إلى أسبوعين: ${ar(mid)}</span><span style="color:var(--rose)">● أكثر من أسبوعين: ${ar(old)}</span></div></section>
+
+  <section class="card"><div class="row between"><h2>أيام العمل</h2><span class="sub">آخر ٤ أسابيع</span></div>
+   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px">${last28.map(x=>`<div style="aspect-ratio:1;border-radius:6px;background:${x?"var(--teal)":"var(--teal-soft)"}"></div>`).join("")}</div>
+   <div class="sub" style="margin-top:8px">يُحتسب اليوم إذا راجعت سورة أو أنجزت مهمة. سلسلتك الحالية: ${ar(streak())} يوم.</div></section>
+
+  ${top.length?`<section class="card"><h2>أكثر السور مراجعة</h2><div class="list-tight" style="margin-top:6px">${top.map(s=>`<div class="ritem"><span class="snm">${s.name}</span><span class="num sub">${ar(sOf(s.no).c)} مرة</span></div>`).join("")}</div></section>`:""}
+
+  <section class="card"><h2>دفتر المتشابهات والأخطاء</h2><div class="sub">ملاحظاتك على السور، تكتبها من صفحة السورة.</div>
+   ${notes.length?`<div class="list-tight" style="margin-top:8px">${notes.map(s=>`<button class="ritem" style="background:none;border:none;border-bottom:1px dashed var(--line);text-align:right;width:100%" data-act="open" data-no="${s.no}"><div><div class="snm">${s.name}</div><div class="smeta" style="white-space:pre-wrap">${esc(sOf(s.no).n)}</div></div></button>`).join("")}</div>`:`<div class="empty" style="margin-top:6px">لا ملاحظات بعد. افتح أي سورة واكتب مواضع التشابه أو الأخطاء التي تتكرر معك.</div>`}</section>
+
+  <section class="card"><h2>نصائح للحافظ</h2><ul style="margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:column;gap:4px">
+   <li>اربط الحفظ الجديد بالقديم: راجع الصفحة السابقة قبل أن تبدأ الجديدة.</li>
+   <li>احفظ من مصحف واحد لتثبت صورة الصفحة في ذهنك.</li>
+   <li>اقرأ محفوظك في الصلاة، فهي أقوى مراجعة.</li>
+   <li>قسّم المراجعة: قليل دائم خير من كثير منقطع.</li>
+   <li>سجّل المتشابهات فور ملاحظتها في دفترك.</li></ul></section>
+  </div>`;
+}
+
+/* ---------- Surah sheet ---------- */
+function openSheet(no){
+  const s=S[no-1],x=sOf(no);const n=daysSince(lastTouch(no));
+  const root=document.getElementById("sheetRoot");
+  root.innerHTML=`<div class="overlay" data-act="close"><div class="sheet" role="dialog" aria-modal="true" aria-label="سورة ${s.name}">
+   <div class="grab"></div>
+   <div class="row between"><div><h2 style="font-family:var(--f-quran);font-size:1.7rem">سورة ${s.name}</h2><div class="sub num">${s.makki?"مكية":"مدنية"} · ترتيبها ${ar(s.no)} · الجزء ${ar(s.juz)}</div></div>
+   <button class="btn ghost sm" data-act="close">إغلاق</button></div>
+   <div class="kv"><div><b>${ar(s.ayat)}</b><span>آية</span></div><div><b>${ar(s.start)}–${ar(s.end)}</b><span>الصفحات</span></div><div><b>${ar(x.c||0)}</b><span>مرات المراجعة</span></div></div>
+   <div><div class="sub" style="margin-bottom:6px">الحالة</div><div class="seg four">${Object.entries(ST).map(([k,l])=>`<button aria-pressed="${x.st===k}" data-act="setst" data-no="${no}" data-st="${k}">${l}</button>`).join("")}</div></div>
+   <div class="row between"><div><div class="sub">آخر مراجعة</div><div>${x.r?fmtDate(x.r)+" · "+agoText(daysSince(x.r)):"لم تُسجّل"}</div></div>
+    <button class="btn pri" data-act="review" data-no="${no}">راجعتها اليوم</button></div>
+   ${isHeld(no)?`<div class="form"><label>تاريخ الحفظ<input type="date" id="hdIn" data-no="${no}" max="${today()}" value="${x.hd||x.d||""}"></label>
+    ${x.st==="mastered"?`<label>تاريخ التثبيت<input type="date" id="mdIn" data-no="${no}" max="${today()}" value="${x.md||""}"></label>`:""}</div>
+    <div class="sub" style="margin-top:-6px">حفظتها من قبل؟ عدّل التاريخ ليظهر صحيحاً في سجل إنجازاتك.</div>`:""}
+   <label class="sub" for="note">المتشابهات وملاحظات الأخطاء</label>
+   <textarea id="note" data-no="${no}" placeholder="مثال: الآية ١٢ تشتبه مع ...">${esc(x.n||"")}</textarea>
+   <button class="btn" data-act="plansurah" data-no="${no}">أضفها إلى جدولي</button>
+  </div></div>`;
+}
+function closeSheet(){document.getElementById("sheetRoot").innerHTML=""}
+
+/* ---------- Events ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const a=b.dataset.act;
+  if(a==="close"&&e.target!==b)return;
+  const no=Number(b.dataset.no);
+  switch(a){
+    case "qprev":state.qOff--;save();break;
+    case "qnext":state.qOff++;save();break;
+    case "go":tab=b.dataset.tab;if(b.dataset.filter)filter=b.dataset.filter;scrollTo(0,0);break;
+    case "filter":filter=b.dataset.f;break;
+    case "open":openSheet(no);return;
+    case "close":closeSheet();break;
+    case "review":markReviewed(no);if(document.querySelector(".sheet")){openSheet(no)}break;
+    case "setst":{const was=sOf(no).st,st=b.dataset.st;setStatus(no,st);if(st!=="none")logDay();save();openSheet(no);
+      if(st==="memorized"&&was!=="mastered"&&was!=="memorized")toast("مبارك! أُضيفت سورة "+S[no-1].name+" إلى إنجازاتك");
+      else if(st==="mastered"&&was!=="mastered")toast("مبارك تثبيت سورة "+S[no-1].name);break}
+    case "plansurah":{const s=S[no-1];draft={...draft,s:no,f:s.start,to:s.end,t:isHeld(no)?"review":"hifz"};closeSheet();tab="plan";scrollTo(0,0);break}
+    case "bulk":{const st=b.dataset.st;let c=0;S.filter(s=>s.juz===juzFilter).forEach(s=>{const x=sOf(s.no);if(x.st!==st){setStatus(s.no,st);c++}});if(st!=="none")logDay();save();toast("حُدّثت "+ar(c)+" سورة");break}
+    case "quickamma":S.filter(s=>s.juz===30).forEach(s=>setStatus(s.no,"memorized"));logDay();save();toast("حُدّد جزء عمّ محفوظاً");break;
+    case "dkind":draft.t=b.dataset.k;break;
+    case "addtask":{
+      const s=S[draft.s-1];let f=Number(document.getElementById("dF").value)||s.start,t=Number(document.getElementById("dT").value)||f;
+      f=Math.min(604,Math.max(1,f));t=Math.min(604,Math.max(f,t));
+      state.tasks.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:draft.t,s:draft.s,f,to:t,day:Number(document.getElementById("dD").value)});
+      save();toast("أُضيفت المهمة إلى يوم "+DAYS[Number(document.getElementById("dD").value)]);break}
+    case "deltask":state.tasks=state.tasks.filter(t=>t.id!==b.dataset.id);Object.keys(state.done).forEach(k=>state.done[k]=state.done[k].filter(i=>i!==b.dataset.id));save();break;
+    case "toggle":{
+      const wk=weekKey();const list=state.done[wk]||(state.done[wk]=[]);const id=b.dataset.id;const t=state.tasks.find(x=>x.id===id);
+      if(list.includes(id)){state.done[wk]=list.filter(i=>i!==id)}
+      else{list.push(id);logDay();
+        if(t){if(t.t==="hifz"&&sOf(t.s).st==="none")setS(t.s,{st:"learning",d:today()});
+          else if(t.t!=="hifz"){const x=sOf(t.s);setS(t.s,{r:today(),c:(x.c||0)+1})}}
+        toast("أحسنت، تقبّل الله منك")}
+      const keys=Object.keys(state.done).sort();while(keys.length>8)delete state.done[keys.shift()];
+      save();break}
+    default:return;
+  }
+  render();
+});
+document.addEventListener("input",e=>{
+  if(e.target.id==="q"){query=e.target.value;const pos=e.target.selectionStart;render();const q=document.getElementById("q");q.focus();try{q.setSelectionRange(pos,pos)}catch(_){}}
+  if(e.target.id==="note"){setS(Number(e.target.dataset.no),{n:e.target.value});clearTimeout(window._nt);window._nt=setTimeout(save,600)}
+  if(e.target.id==="dF")draft.f=Number(e.target.value)||draft.f;
+  if(e.target.id==="dT")draft.to=Number(e.target.value)||draft.to;
+});
+document.addEventListener("change",e=>{
+  if(e.target.id==="juzSel"){juzFilter=Number(e.target.value);render()}
+  if(e.target.id==="dS"){const s=S[Number(e.target.value)-1];draft.s=s.no;draft.f=s.start;draft.to=s.end;render()}
+  if(e.target.id==="dD"){draft.day=Number(e.target.value)}
+  if(e.target.id==="hdIn"&&e.target.value){setS(Number(e.target.dataset.no),{hd:e.target.value});save();toast("حُدّث تاريخ الحفظ")}
+  if(e.target.id==="mdIn"&&e.target.value){setS(Number(e.target.dataset.no),{md:e.target.value});save();toast("حُدّث تاريخ التثبيت")}
+  if(e.target.id==="goal"){state.goal=Math.max(0.5,Number(e.target.value)||5);save();render()}
+});
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tab=b.dataset.tab;scrollTo(0,0);render()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+
+/* header dates */
+try{document.getElementById("hijri").textContent=new Date().toLocaleDateString("ar-SA-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric"})}catch(e){}
+document.getElementById("greg").textContent=new Date().toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long"});
+render();
+</script>
+
+</body></html>
